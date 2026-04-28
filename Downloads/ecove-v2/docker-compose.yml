@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  # ── PostgreSQL Database ────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: ecove_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ecove_db
+      POSTGRES_USER: ecove_user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-securepassword}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ecove_user -d ecove_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Redis (rate limiting / caching) ───────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: ecove_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  # ── Next.js Application ────────────────────────────────────
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ecove_app
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    env_file:
+      - .env.local
+    environment:
+      DATABASE_URL: postgresql://ecove_user:${POSTGRES_PASSWORD:-securepassword}@postgres:5432/ecove_db
+      REDIS_URL: redis://redis:6379
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./prisma:/app/prisma
+
+volumes:
+  postgres_data:
+  redis_data:

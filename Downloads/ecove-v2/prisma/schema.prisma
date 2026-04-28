@@ -1,0 +1,473 @@
+// prisma/schema.prisma — Ecove Multi-Vendor Marketplace — Production Schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role { customer vendor admin super_admin }
+enum VendorStatus { pending approved rejected suspended }
+enum ProductStatus { draft pending approved rejected suspended }
+enum OrderStatus { pending processing shipped out_for_delivery delivered cancelled refunded }
+enum PaymentStatus { unpaid paid refunded failed partially_refunded }
+enum PayoutStatus { pending approved paid rejected on_hold }
+enum CommissionType { global category vendor }
+enum CouponType { percentage fixed free_shipping buy_x_get_y }
+enum BannerPosition { hero_slider side_card_left side_card_right full_width dual_banner }
+enum ReviewStatus { pending approved rejected flagged }
+enum NotificationType { vendor_approved vendor_rejected vendor_suspended product_approved product_rejected order_received order_shipped order_delivered payout_approved payout_paid payout_rejected review_flagged low_stock }
+
+model User {
+  id                 String    @id @default(uuid())
+  email              String    @unique
+  passwordHash       String
+  firstName          String
+  lastName           String
+  phone              String?
+  role               Role      @default(customer)
+  isActive           Boolean   @default(true)
+  isEmailVerified    Boolean   @default(false)
+  emailVerifyToken   String?
+  emailVerifyExpiry  DateTime?
+  resetToken         String?
+  resetTokenExpiry   DateTime?
+  avatarUrl          String?
+  lastLoginAt        DateTime?
+  vendor             Vendor?
+  addresses          Address[]
+  orders             Order[]
+  reviews            Review[]
+  wishlist           WishlistItem[]
+  notifications      Notification[]
+  sessions           Session[]
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  @@map("users")
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  ipAddress String?
+  userAgent String?
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  @@map("sessions")
+}
+
+model Vendor {
+  id                  String       @id @default(uuid())
+  userId              String       @unique
+  user                User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  businessName        String
+  slug                String       @unique
+  description         String?
+  tagline             String?
+  phone               String
+  whatsapp            String?
+  city                String
+  state               String
+  address             String
+  logoUrl             String?
+  bannerUrl           String?
+  bankName            String?
+  bankAccountNumber   String?
+  bankAccountName     String?
+  bvn                 String?
+  idDocumentUrl       String?
+  cacDocumentUrl      String?
+  addressProofUrl     String?
+  status              VendorStatus @default(pending)
+  statusNote          String?
+  approvedAt          DateTime?
+  approvedById        String?
+  commissionRate      Decimal?     @db.Decimal(5,2)
+  totalSales          Decimal      @default(0) @db.Decimal(14,2)
+  totalOrders         Int          @default(0)
+  averageRating       Decimal      @default(0) @db.Decimal(3,2)
+  reviewCount         Int          @default(0)
+  responseRate        Decimal      @default(0) @db.Decimal(5,2)
+  onTimeRate          Decimal      @default(0) @db.Decimal(5,2)
+  availableBalance    Decimal      @default(0) @db.Decimal(14,2)
+  pendingBalance      Decimal      @default(0) @db.Decimal(14,2)
+  lifetimePaid        Decimal      @default(0) @db.Decimal(14,2)
+  isAutoApproved      Boolean      @default(false)
+  maxProducts         Int          @default(100)
+  products            Product[]
+  orderItems          OrderItem[]
+  payouts             Payout[]
+  vendorReviews       VendorReview[]
+  notifications       VendorNotification[]
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
+  @@index([status])
+  @@index([totalSales])
+  @@map("vendors")
+}
+
+model Category {
+  id              String      @id @default(uuid())
+  name            String
+  slug            String      @unique
+  description     String?
+  imageUrl        String?
+  parentId        String?
+  parent          Category?   @relation("CategoryParent", fields: [parentId], references: [id])
+  children        Category[]  @relation("CategoryParent")
+  products        Product[]
+  commissions     CommissionRule[]
+  displayOrder    Int         @default(0)
+  isActive        Boolean     @default(true)
+  metaTitle       String?
+  metaDescription String?
+  metaKeywords    String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  @@map("categories")
+}
+
+model Product {
+  id               String        @id @default(uuid())
+  vendorId         String
+  vendor           Vendor        @relation(fields: [vendorId], references: [id])
+  name             String
+  slug             String        @unique
+  description      String?
+  shortDescription String?
+  price            Decimal       @db.Decimal(12,2)
+  comparePrice     Decimal?      @db.Decimal(12,2)
+  costPrice        Decimal?      @db.Decimal(12,2)
+  sku              String?       @unique
+  barcode          String?
+  stock            Int           @default(0)
+  lowStockAlert    Int           @default(5)
+  weight           Decimal?      @db.Decimal(8,2)
+  categoryId       String?
+  category         Category?     @relation(fields: [categoryId], references: [id])
+  brand            String?
+  handlingTime     String?
+  shipsFrom        String?
+  status           ProductStatus @default(draft)
+  adminNote        String?
+  reviewedAt       DateTime?
+  reviewedById     String?
+  isActive         Boolean       @default(false)
+  isFeatured       Boolean       @default(false)
+  isBestSeller     Boolean       @default(false)
+  isFlashSale      Boolean       @default(false)
+  flashSalePrice   Decimal?      @db.Decimal(12,2)
+  flashSaleEnd     DateTime?
+  images           ProductImage[]
+  variants         ProductVariant[]
+  orderItems       OrderItem[]
+  reviews          Review[]
+  wishlistItems    WishlistItem[]
+  tags             String[]
+  metaTitle        String?
+  metaDescription  String?
+  specifications   Json?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  @@index([status, isActive])
+  @@index([vendorId])
+  @@index([categoryId])
+  @@index([isFlashSale, flashSaleEnd])
+  @@index([isFeatured])
+  @@index([isBestSeller])
+  @@index([createdAt])
+  @@map("products")
+}
+
+model ProductImage {
+  id        String  @id @default(uuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  url       String
+  publicId  String?
+  altText   String?
+  isPrimary Boolean @default(false)
+  sortOrder Int     @default(0)
+  @@map("product_images")
+}
+
+model ProductVariant {
+  id              String  @id @default(uuid())
+  productId       String
+  product         Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  name            String
+  value           String
+  priceAdjustment Decimal @default(0) @db.Decimal(10,2)
+  stock           Int     @default(0)
+  sku             String?
+  @@map("product_variants")
+}
+
+model Order {
+  id              String        @id @default(uuid())
+  orderNumber     String        @unique
+  userId          String?
+  user            User?         @relation(fields: [userId], references: [id])
+  guestEmail      String?
+  guestPhone      String?
+  status          OrderStatus   @default(pending)
+  paymentStatus   PaymentStatus @default(unpaid)
+  paymentMethod   String?
+  paymentRef      String?       @unique
+  subtotal        Decimal       @db.Decimal(12,2)
+  discount        Decimal       @default(0) @db.Decimal(12,2)
+  shippingFee     Decimal       @default(0) @db.Decimal(10,2)
+  total           Decimal       @db.Decimal(12,2)
+  couponCode      String?
+  couponDiscount  Decimal?      @db.Decimal(12,2)
+  shippingAddress Json
+  billingAddress  Json?
+  notes           String?
+  cancelReason    String?
+  items           OrderItem[]
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  @@index([userId])
+  @@index([paymentStatus])
+  @@index([status])
+  @@index([createdAt])
+  @@map("orders")
+}
+
+model OrderItem {
+  id                String      @id @default(uuid())
+  orderId           String
+  order             Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId         String?
+  product           Product?    @relation(fields: [productId], references: [id])
+  vendorId          String?
+  vendor            Vendor?     @relation(fields: [vendorId], references: [id])
+  productName       String
+  productImage      String?
+  vendorName        String?
+  quantity          Int
+  unitPrice         Decimal     @db.Decimal(12,2)
+  totalPrice        Decimal     @db.Decimal(12,2)
+  variant           Json?
+  commissionRate    Decimal     @db.Decimal(5,2)
+  commissionAmt     Decimal     @db.Decimal(12,2)
+  vendorEarning     Decimal     @db.Decimal(12,2)
+  payoutId          String?
+  payout            Payout?     @relation(fields: [payoutId], references: [id])
+  payoutStatus      PayoutStatus @default(pending)
+  fulfillmentStatus OrderStatus  @default(pending)
+  trackingNumber    String?
+  shippedAt         DateTime?
+  deliveredAt       DateTime?
+  createdAt         DateTime    @default(now())
+  @@index([vendorId])
+  @@index([orderId])
+  @@index([fulfillmentStatus])
+  @@map("order_items")
+}
+
+model CommissionRule {
+  id         String         @id @default(uuid())
+  type       CommissionType
+  rate       Decimal        @db.Decimal(5,2)
+  categoryId String?
+  category   Category?      @relation(fields: [categoryId], references: [id])
+  vendorId   String?        @unique
+  isActive   Boolean        @default(true)
+  note       String?
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+  @@map("commission_rules")
+}
+
+model Payout {
+  id                String       @id @default(uuid())
+  vendorId          String
+  vendor            Vendor       @relation(fields: [vendorId], references: [id])
+  amount            Decimal      @db.Decimal(14,2)
+  currency          String       @default("NGN")
+  periodStart       DateTime
+  periodEnd         DateTime
+  bankName          String
+  bankAccountNumber String
+  bankAccountName   String
+  status            PayoutStatus @default(pending)
+  adminNote         String?
+  processedAt       DateTime?
+  processedById     String?
+  transferRef       String?
+  items             OrderItem[]
+  requestedAt       DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  @@map("payouts")
+}
+
+model Review {
+  id                 String       @id @default(uuid())
+  productId          String
+  product            Product      @relation(fields: [productId], references: [id])
+  vendorId           String?
+  userId             String?
+  user               User?        @relation(fields: [userId], references: [id])
+  guestName          String?
+  guestEmail         String?
+  rating             Int
+  title              String?
+  body               String?
+  isVerifiedPurchase Boolean      @default(false)
+  status             ReviewStatus @default(pending)
+  flagReason         String?
+  moderatedAt        DateTime?
+  moderatedById      String?
+  createdAt          DateTime     @default(now())
+  @@map("reviews")
+}
+
+model VendorReview {
+  id        String       @id @default(uuid())
+  vendorId  String
+  vendor    Vendor       @relation(fields: [vendorId], references: [id])
+  userId    String?
+  rating    Int
+  body      String?
+  delivery  Int?
+  quality   Int?
+  service   Int?
+  orderId   String?
+  status    ReviewStatus @default(pending)
+  createdAt DateTime     @default(now())
+  @@map("vendor_reviews")
+}
+
+model Address {
+  id           String   @id @default(uuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id])
+  firstName    String
+  lastName     String
+  phone        String
+  addressLine1 String
+  addressLine2 String?
+  city         String
+  state        String
+  country      String   @default("Nigeria")
+  isDefault    Boolean  @default(false)
+  label        String?  // e.g. "Home", "Office"
+  createdAt    DateTime @default(now())
+  @@map("addresses")
+}
+
+model Coupon {
+  id             String     @id @default(uuid())
+  code           String     @unique
+  type           CouponType
+  value          Decimal?   @db.Decimal(10,2)
+  minOrderAmount Decimal?   @db.Decimal(12,2)
+  maxUses        Int?
+  usedCount      Int        @default(0)
+  startDate      DateTime?
+  endDate        DateTime?
+  isActive       Boolean    @default(true)
+  appliesTo      String     @default("all")
+  categoryIds    String[]
+  productIds     String[]
+  vendorIds      String[]
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  @@map("coupons")
+}
+
+model Banner {
+  id           String         @id @default(uuid())
+  title        String
+  subtitle     String?
+  ctaText      String?
+  ctaLink      String?
+  imageUrl     String?
+  publicId     String?
+  position     BannerPosition @default(hero_slider)
+  bgColor      String?
+  displayOrder Int            @default(0)
+  startDate    DateTime?
+  endDate      DateTime?
+  isActive     Boolean        @default(true)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  @@map("banners")
+}
+
+model WishlistItem {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  createdAt DateTime @default(now())
+  @@unique([userId, productId])
+  @@map("wishlist_items")
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id])
+  type      NotificationType
+  title     String
+  message   String
+  link      String?
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+  @@map("notifications")
+}
+
+model VendorNotification {
+  id        String           @id @default(uuid())
+  vendorId  String
+  vendor    Vendor           @relation(fields: [vendorId], references: [id])
+  type      NotificationType
+  title     String
+  message   String
+  link      String?
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+  @@map("vendor_notifications")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  actorId    String?
+  actorRole  Role?
+  action     String
+  entityType String
+  entityId   String
+  meta       Json?
+  ip         String?
+  createdAt  DateTime @default(now())
+  @@map("audit_logs")
+}
+
+model FraudFlag {
+  id           String   @id @default(uuid())
+  entityType   String
+  entityId     String
+  reason       String
+  severity     String   @default("medium")
+  isResolved   Boolean  @default(false)
+  resolvedAt   DateTime?
+  resolvedById String?
+  note         String?
+  createdAt    DateTime @default(now())
+  @@map("fraud_flags")
+}
+
+model SiteSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+  @@map("site_settings")
+}
