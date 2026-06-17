@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { redirect } from "next/navigation";
 import { getCurrentUser, logoutUser } from "@/lib/actions/auth";
 import { getWallet } from "@/lib/actions/wallet";
