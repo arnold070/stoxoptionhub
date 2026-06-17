@@ -1,0 +1,84 @@
+"use client";
+
+import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { registerUser } from "@/lib/actions/auth";
+import { Zap } from "lucide-react";
+
+export default function RegisterPage() {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = new FormData(e.currentTarget);
+    startTransition(async () => {
+      const result = await registerUser({
+        name: form.get("name") as string,
+        email: form.get("email") as string,
+        password: form.get("password") as string,
+      });
+      if (result.success) { router.push("/dashboard"); router.refresh(); }
+      else setError(result.error);
+    });
+  }
+
+  const inputCls = "w-full px-4 py-3 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg text-[13px] text-white placeholder:text-[#444] outline-none focus:border-[#f0b429]/50 transition-colors";
+  const labelCls = "block text-[11px] font-medium text-[#888] uppercase tracking-wider mb-1.5";
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a] px-4 py-8">
+      <div className="w-full max-w-sm">
+        <div className="flex items-center gap-2.5 justify-center mb-8">
+          <div className="w-9 h-9 bg-[#1a1a1a] rounded-xl border border-[#2a2a2a] flex items-center justify-center shrink-0">
+            <Zap size={18} className="text-[#f0b429]" />
+          </div>
+          <div>
+            <div className="text-[16px] font-bold text-white">StoxOptionHub</div>
+            <div className="text-[9px] text-[#444] uppercase tracking-widest">Institutional Grade</div>
+          </div>
+        </div>
+
+        <div className="bg-[#111] border border-[#1e1e1e] rounded-2xl p-6 sm:p-8">
+          <h1 className="text-[20px] font-bold text-white mb-1">Create account</h1>
+          <p className="text-[13px] text-[#555] mb-6">Join the institutional trading community</p>
+
+          {error && (
+            <div className="mb-4 p-3 rounded-lg bg-[#ef4444]/10 border border-[#ef4444]/20 text-[#ef4444] text-[12px]">
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label htmlFor="name" className={labelCls}>Full name</label>
+              <input id="name" name="name" type="text" required autoComplete="name" className={inputCls} />
+            </div>
+            <div>
+              <label htmlFor="email" className={labelCls}>Email address</label>
+              <input id="email" name="email" type="email" required autoComplete="email" className={inputCls} />
+            </div>
+            <div>
+              <label htmlFor="password" className={labelCls}>Password</label>
+              <input id="password" name="password" type="password" required autoComplete="new-password" className={inputCls} />
+              <p className="mt-1.5 text-[11px] text-[#444]">Min 8 chars · 1 uppercase · 1 number</p>
+            </div>
+            <button type="submit" disabled={isPending}
+              className="w-full py-3 bg-[#f0b429] hover:bg-[#e0a424] disabled:opacity-50 text-black text-[13px] font-bold rounded-lg uppercase tracking-wide transition-colors mt-2">
+              {isPending ? "Creating account…" : "Create Account"}
+            </button>
+          </form>
+
+          <p className="mt-5 text-center text-[12px] text-[#555]">
+            Already have an account?{" "}
+            <Link href="/login" className="text-[#f0b429] hover:opacity-80 font-semibold">
+              Sign in
+            </Link>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}

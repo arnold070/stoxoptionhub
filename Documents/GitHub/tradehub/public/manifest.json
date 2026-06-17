@@ -1,0 +1,16 @@
+{
+  "name": "StoxOptionHub",
+  "short_name": "StoxOptionHub",
+  "description": "Institutional-grade copy trading, mentorship, and portfolio management.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#0a0a0a",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "any",
+      "type": "image/x-icon"
+    }
+  ]
+}

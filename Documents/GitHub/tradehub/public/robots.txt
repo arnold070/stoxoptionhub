@@ -1,0 +1,26 @@
+User-agent: *
+Allow: /
+
+# Public marketing pages
+Allow: /home
+Allow: /about
+Allow: /contact
+Allow: /investment-plans
+Allow: /copy-trading
+Allow: /mentorship
+Allow: /how-it-works
+Allow: /faq
+Allow: /terms
+Allow: /privacy
+Allow: /risk-disclosure
+Allow: /cookies
+
+# Keep dashboard and API private
+Disallow: /dashboard
+Disallow: /wallet
+Disallow: /investments
+Disallow: /copy-trading/dashboard
+Disallow: /admin
+Disallow: /api/
+
+Sitemap: https://stoxoptionhub.com/sitemap.xml

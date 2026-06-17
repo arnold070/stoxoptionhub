@@ -1,0 +1,364 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  VISITOR
+  MEMBER
+  MENTOR
+  TRADER
+  ADMIN
+}
+
+enum MembershipStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
+  PENDING
+}
+
+enum StrategyTier {
+  BRONZE
+  SILVER
+  GOLD
+  PLATINUM
+}
+
+enum AllocationStatus {
+  ACTIVE
+  WITHDRAWN
+  PENDING
+}
+
+enum TransactionType {
+  DEPOSIT
+  WITHDRAWAL
+  ALLOCATION_IN
+  ALLOCATION_OUT
+  INVESTMENT
+  PAYOUT
+  ADJUSTMENT
+}
+
+enum TransactionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  COMPLETED
+}
+
+enum InvestmentStatus {
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum NotificationType {
+  DEPOSIT_SUBMITTED
+  DEPOSIT_APPROVED
+  DEPOSIT_REJECTED
+  INVESTMENT_CREATED
+  INVESTMENT_MATURED
+  WALLET_CREDIT
+  GENERAL
+}
+
+enum ContentType {
+  VIDEO
+  PDF
+  RESOURCE
+  REPLAY
+}
+
+enum CommunityType {
+  TELEGRAM
+  DISCORD
+}
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  password      String
+  name          String
+  role          Role     @default(MEMBER)
+  emailVerified Boolean  @default(false)
+  isSuspended   Boolean  @default(false)
+  avatarUrl     String?
+  phone         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  memberships        Membership[]
+  wallet             Wallet?
+  allocations        Allocation[]
+  transactions       Transaction[]
+  verificationTokens VerificationToken[]
+  passwordResets     PasswordResetToken[]
+  auditLogs          AuditLog[]
+  investments        UserInvestment[]
+  notifications      Notification[]
+
+  @@map("users")
+}
+
+model Plan {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  price       Float
+  duration    Int?
+  description String
+  benefits    String
+  maxMembers  Int?
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  memberships Membership[]
+  content     Content[]
+  community   Community[]
+
+  @@map("plans")
+}
+
+model Membership {
+  id        String           @id @default(cuid())
+  userId    String
+  planId    String
+  status    MembershipStatus @default(PENDING)
+  startDate DateTime?
+  endDate   DateTime?
+  paidAt    DateTime?
+  amount    Float
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan Plan @relation(fields: [planId], references: [id])
+
+  @@map("memberships")
+}
+
+model Strategy {
+  id          String       @id @default(cuid())
+  name        String       @unique
+  description String
+  tier        StrategyTier
+  minAmount   Float
+  maxAmount   Float?
+  performance Float        @default(0)
+  isActive    Boolean      @default(true)
+  managedBy   String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  allocations Allocation[]
+
+  @@map("strategies")
+}
+
+model Allocation {
+  id         String           @id @default(cuid())
+  userId     String
+  strategyId String
+  amount     Float
+  status     AllocationStatus @default(ACTIVE)
+  notes      String?
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  strategy Strategy @relation(fields: [strategyId], references: [id])
+
+  @@map("allocations")
+}
+
+model Wallet {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  balance   Float    @default(0)
+  currency  String   @default("USDT")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+
+  @@map("wallets")
+}
+
+model Transaction {
+  id          String            @id @default(cuid())
+  walletId    String
+  userId      String
+  type        TransactionType
+  amount      Float
+  status      TransactionStatus @default(PENDING)
+  description String?
+  reference   String?
+  txHash      String?
+  network     String?
+  adminNote   String?
+  approvedBy  String?
+  approvedAt  DateTime?
+  rejectedAt  DateTime?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  wallet Wallet @relation(fields: [walletId], references: [id])
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("transactions")
+}
+
+model InvestmentPlan {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String
+  minAmount   Float
+  durationDays Int
+  roiPercent  Float
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  investments UserInvestment[]
+
+  @@map("investment_plans")
+}
+
+model UserInvestment {
+  id             String           @id @default(cuid())
+  userId         String
+  planId         String
+  amount         Float
+  expectedPayout Float
+  status         InvestmentStatus @default(ACTIVE)
+  startDate      DateTime         @default(now())
+  endDate        DateTime
+  completedAt    DateTime?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  user User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan InvestmentPlan @relation(fields: [planId], references: [id])
+
+  @@index([status, endDate])
+  @@map("user_investments")
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  type      NotificationType
+  title     String
+  message   String
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+  @@map("notifications")
+}
+
+model Content {
+  id                 String      @id @default(cuid())
+  title              String
+  description        String?
+  type               ContentType
+  url                String
+  thumbnailUrl       String?
+  membershipRequired Boolean     @default(false)
+  planId             String?
+  duration           Int?
+  isPublished        Boolean     @default(false)
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+
+  plan Plan? @relation(fields: [planId], references: [id])
+
+  @@map("content")
+}
+
+model LiveSession {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  scheduledAt DateTime
+  streamUrl   String?
+  replayUrl   String?
+  isLive      Boolean   @default(false)
+  endedAt     DateTime?
+  membersOnly Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("live_sessions")
+}
+
+model Community {
+  id        String        @id @default(cuid())
+  name      String
+  type      CommunityType
+  url       String
+  planId    String?
+  tier      StrategyTier?
+  isActive  Boolean       @default(true)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  plan Plan? @relation(fields: [planId], references: [id])
+
+  @@map("community")
+}
+
+model VerificationToken {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("verification_tokens")
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("password_reset_tokens")
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String
+  entity    String
+  entityId  String?
+  details   String?
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id])
+
+  @@map("audit_logs")
+}
