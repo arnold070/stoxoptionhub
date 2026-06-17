@@ -2,14 +2,6 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
 
-if (!process.env.JWT_SECRET && process.env.NODE_ENV === "production") {
-  throw new Error("JWT_SECRET environment variable is required in production");
-}
-
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET ?? "fallback-secret-for-dev-only"
-);
-
 const PUBLIC_PATHS = [
   "/",
   "/home",
@@ -45,6 +37,10 @@ export async function proxy(request: NextRequest) {
   if (!token) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
+
+  const JWT_SECRET = new TextEncoder().encode(
+    process.env.JWT_SECRET ?? "fallback-secret-for-dev-only"
+  );
 
   try {
     const { payload } = await jwtVerify(token, JWT_SECRET);
