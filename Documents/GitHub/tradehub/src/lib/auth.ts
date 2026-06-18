@@ -2,13 +2,6 @@ import { cookies } from "next/headers";
 import { SignJWT, jwtVerify } from "jose";
 import type { Role } from "@/generated/prisma/enums";
 
-if (!process.env.JWT_SECRET) {
-  if (process.env.NODE_ENV === "production") {
-    throw new Error("JWT_SECRET environment variable is required in production");
-  }
-  console.warn("⚠️  JWT_SECRET not set — using an insecure dev-only fallback secret");
-}
-
 const JWT_SECRET = new TextEncoder().encode(
   process.env.JWT_SECRET ?? "fallback-secret-for-dev-only"
 );
