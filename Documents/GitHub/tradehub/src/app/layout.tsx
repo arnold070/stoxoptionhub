@@ -16,16 +16,27 @@ export const metadata: Metadata = {
   title: "StoxOptionHub | Institutional Grade Trading Platform",
   description: "StoxOptionHub gives you institutional-grade copy trading, mentorship, and portfolio management — all in one platform.",
   manifest: "/manifest.json",
+  icons: {
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+    ],
+    apple: { url: "/apple-touch-icon.png", sizes: "180x180" },
+    shortcut: "/favicon.svg",
+  },
   openGraph: {
     title: "StoxOptionHub",
     description: "Institutional-grade copy trading, mentorship, and portfolio management.",
     siteName: "StoxOptionHub",
     type: "website",
+    images: [{ url: "/brand/og-image.png", width: 1200, height: 630 }],
   },
   twitter: {
     card: "summary_large_image",
     title: "StoxOptionHub",
     description: "Institutional-grade copy trading, mentorship, and portfolio management.",
+    images: ["/brand/og-image.png"],
   },
 };
 

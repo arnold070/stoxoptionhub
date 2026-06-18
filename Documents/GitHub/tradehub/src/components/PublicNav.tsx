@@ -3,7 +3,8 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, Zap, ChevronDown } from "lucide-react";
+import { Menu, X, ChevronDown } from "lucide-react";
+import { Logo } from "@/components/Logo";
 
 type NavLeaf = { href: string; label: string };
 type NavDropdown = { label: string; children: Array<NavLeaf> };
@@ -83,12 +84,7 @@ export default function PublicNav() {
         <div className="flex items-center justify-between h-16">
 
           {/* Logo */}
-          <Link href="/home" className="flex items-center gap-2.5 shrink-0 group">
-            <div className="w-8 h-8 bg-[#1a1a1a] group-hover:bg-[#f0b429]/10 rounded-lg border border-[#2a2a2a] group-hover:border-[#f0b429]/30 flex items-center justify-center transition-all">
-              <Zap size={15} className="text-[#f0b429]" />
-            </div>
-            <span className="text-[15px] font-bold text-white">StoxOptionHub</span>
-          </Link>
+          <Logo href="/home" size={34} textTheme="light" />
 
           {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-0.5" aria-label="Main navigation">

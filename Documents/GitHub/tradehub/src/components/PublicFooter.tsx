@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Zap, Send, Mail } from "lucide-react";
+import { Send, Mail } from "lucide-react";
+import { Logo } from "@/components/Logo";
 
 function XIcon({ size = 14 }: { size?: number }) {
   return (
@@ -67,15 +68,10 @@ export default function PublicFooter() {
 
           {/* Brand + newsletter */}
           <div className="lg:col-span-2">
-            <Link href="/home" className="flex items-center gap-2.5 mb-4 group w-fit">
-              <div className="w-9 h-9 bg-[#1a1a1a] group-hover:bg-[#f0b429]/10 rounded-xl border border-[#2a2a2a] group-hover:border-[#f0b429]/30 flex items-center justify-center shrink-0 transition-all">
-                <Zap size={17} className="text-[#f0b429]" />
-              </div>
-              <div>
-                <div className="text-[15px] font-bold text-white">StoxOptionHub</div>
-                <div className="text-[9px] text-[#444] uppercase tracking-widest">Institutional Grade</div>
-              </div>
-            </Link>
+            <div className="mb-4">
+              <Logo href="/home" size={36} textTheme="light" />
+              <div className="text-[9px] text-[#444] uppercase tracking-widest mt-1.5 ml-0.5">Institutional Grade</div>
+            </div>
 
             <p className="text-[13px] text-[#555] leading-relaxed max-w-xs mb-6">
               A professional copy trading and investment platform built for serious traders seeking structured,

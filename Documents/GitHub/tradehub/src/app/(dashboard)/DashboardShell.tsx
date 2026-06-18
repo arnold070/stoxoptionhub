@@ -14,7 +14,6 @@ import {
   Settings,
   LogOut,
   Monitor,
-  Zap,
   Menu,
   X,
   BarChart2,
@@ -28,6 +27,7 @@ import {
   ArrowDownCircle,
 } from "lucide-react";
 import NotificationBell from "@/components/NotificationBell";
+import { Logo } from "@/components/Logo";
 
 const navItems = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
@@ -166,9 +166,7 @@ export default function DashboardShell({
           >
             {menuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
-          <Link href="/dashboard" className="font-bold text-base sm:text-lg text-[#f0b429] tracking-tight shrink-0">
-            StoxOptionHub
-          </Link>
+          <Logo href="/dashboard" size={30} textTheme="light" />
           <nav className="hidden md:flex gap-6">
             {["Market", "Indices", "Options"].map((item) => (
               <span key={item} className="text-[13px] text-[#888] cursor-pointer hover:text-white transition-colors">
@@ -217,14 +215,9 @@ export default function DashboardShell({
           }`}
         >
           <div className="px-4 py-5 border-b border-[#1a1a1a] hidden md:block">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 bg-[#1a1a1a] rounded-lg border border-[#2a2a2a] flex items-center justify-center shrink-0">
-                <Zap size={15} className="text-[#f0b429]" />
-              </div>
-              <div>
-                <div className="text-[13px] font-bold text-white">StoxOptionHub</div>
-                <div className="text-[9px] text-[#444] uppercase tracking-widest">Institutional Grade</div>
-              </div>
+            <div>
+              <Logo href="/dashboard" size={28} textTheme="light" />
+              <div className="text-[9px] text-[#444] uppercase tracking-widest mt-1.5 ml-0.5">Institutional Grade</div>
             </div>
           </div>
           {sidebarContent}

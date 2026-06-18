@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 368 80" width="368" height="80" role="img" aria-label="StoxOptionHub">
+  <title>StoxOptionHub – Monochrome Black</title>
+  <defs>
+    <style>
+      .wm { font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif; font-size: 30px; letter-spacing: -0.4px; font-weight: 800; }
+    </style>
+  </defs>
+
+  <!-- Icon mark -->
+  <svg x="4" y="4" width="72" height="72" viewBox="0 0 100 100">
+    <rect x="5" y="5" width="90" height="90" rx="15" fill="#000000"/>
+    <path
+      d="M30,22 L62,22 L70,30 L70,42 L62,50 L38,50 L30,58 L30,70 L38,78 L70,78"
+      fill="none" stroke="#ffffff" stroke-width="14"
+      stroke-linecap="square" stroke-linejoin="miter"
+    />
+  </svg>
+
+  <!-- Wordmark -->
+  <text class="wm" x="90" y="40" dominant-baseline="central" fill="#000000">StoxOptionHub</text>
+</svg>

@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 148" width="260" height="148" role="img" aria-label="StoxOptionHub">
+  <title>StoxOptionHub – Stacked Logo (Light Background)</title>
+  <defs>
+    <style>
+      .wm { font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif; font-size: 28px; letter-spacing: -0.4px; }
+      .sub { font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif; font-size: 9px; letter-spacing: 2.5px; }
+    </style>
+  </defs>
+
+  <!-- Icon mark centered -->
+  <svg x="90" y="6" width="80" height="80" viewBox="0 0 100 100">
+    <rect x="5" y="5" width="90" height="90" rx="15" fill="#f0b429"/>
+    <path
+      d="M30,22 L62,22 L70,30 L70,42 L62,50 L38,50 L30,58 L30,70 L38,78 L70,78"
+      fill="none" stroke="#0d0d0d" stroke-width="14"
+      stroke-linecap="square" stroke-linejoin="miter"
+    />
+  </svg>
+
+  <!-- Wordmark centered -->
+  <text class="wm" x="130" y="110" text-anchor="middle" dominant-baseline="central">
+    <tspan font-weight="800" fill="#0d0d0d">Stox</tspan><tspan font-weight="400" fill="#c49000">Option</tspan><tspan font-weight="800" fill="#0d0d0d">Hub</tspan>
+  </text>
+
+  <!-- Tagline -->
+  <text class="sub" x="130" y="134" text-anchor="middle" dominant-baseline="central" fill="#888888" font-weight="600">INSTITUTIONAL GRADE</text>
+</svg>
