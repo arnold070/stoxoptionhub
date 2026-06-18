@@ -33,6 +33,16 @@ const navItems = [
   { href: "/settings", icon: Settings, label: "Settings" },
 ];
 
+const adminNavItems = [
+  { href: "/admin", icon: LayoutDashboard, label: "Overview" },
+  { href: "/admin/deposits", icon: Wallet, label: "Deposits" },
+  { href: "/admin/withdrawals", icon: TrendingUp, label: "Withdrawals" },
+  { href: "/admin/transactions", icon: BarChart2, label: "Transactions" },
+  { href: "/admin/investments", icon: GraduationCap, label: "Investments" },
+  { href: "/admin/audit-logs", icon: BookOpen, label: "Audit Logs" },
+  { href: "/settings", icon: Settings, label: "Settings" },
+];
+
 export default function DashboardShell({
   userName,
   isAdmin,
@@ -76,45 +86,40 @@ export default function DashboardShell({
     if (menuOpen) firstLinkRef.current?.focus();
   }, [menuOpen]);
 
+  const items = isAdmin ? adminNavItems : navItems;
+
   const sidebarContent = (
     <>
       <nav className="flex-1 px-2 py-3 overflow-y-auto space-y-0.5">
-        {navItems.map(({ href, icon: Icon, label }, i) => (
+        {items.map(({ href, icon: Icon, label }, i) => (
           <Link
-            key={label}
+            key={href}
             ref={i === 0 ? firstLinkRef : undefined}
             href={href}
-            onClick={() => setMenuOpen(false)}
-            className="flex items-center gap-2.5 px-3 py-2.5 rounded-md text-[13px] text-[#666] hover:text-white hover:bg-[#1a1a1a] transition-colors group min-h-[44px]"
+            className={`flex items-center gap-2.5 px-3 py-2.5 rounded-md text-[13px] hover:text-white hover:bg-[#1a1a1a] transition-colors group min-h-[44px] ${
+              pathname === href ? "text-white bg-[#1a1a1a]" : "text-[#666]"
+            }`}
           >
-            <Icon size={14} className="group-hover:text-[#f0b429] transition-colors shrink-0" />
+            <Icon size={14} className={`transition-colors shrink-0 ${pathname === href ? "text-[#f0b429]" : "group-hover:text-[#f0b429]"}`} />
             {label}
           </Link>
         ))}
-        {isAdmin && (
-          <Link
-            href="/admin"
-            onClick={() => setMenuOpen(false)}
-            className="flex items-center gap-2.5 px-3 py-2.5 rounded-md text-[13px] text-[#666] hover:text-white hover:bg-[#1a1a1a] transition-colors group min-h-[44px]"
-          >
-            <Settings size={14} className="group-hover:text-[#f0b429] transition-colors shrink-0" />
-            Admin Panel
-          </Link>
-        )}
       </nav>
 
       <div className="px-2 py-3 border-t border-[#1a1a1a] space-y-2">
-        <div className="bg-[#1a1a1a] rounded-lg p-3 border border-[#2a2a2a]">
-          <div className="text-[10px] text-[#f0b429] font-semibold uppercase tracking-wider mb-1">
-            Pro Account Active
+        {!isAdmin && (
+          <div className="bg-[#1a1a1a] rounded-lg p-3 border border-[#2a2a2a]">
+            <div className="text-[10px] text-[#f0b429] font-semibold uppercase tracking-wider mb-1">
+              Pro Account Active
+            </div>
+            <div className="text-[10px] text-[#444] mb-2">Fee Rebate Level 4</div>
+            <Link href="/memberships">
+              <button type="button" className="w-full py-1.5 bg-transparent border border-[#f0b429] rounded text-[11px] text-[#f0b429] font-semibold hover:bg-[#f0b429]/10 transition-colors min-h-[36px]">
+                Upgrade to Pro
+              </button>
+            </Link>
           </div>
-          <div className="text-[10px] text-[#444] mb-2">Fee Rebate Level 4</div>
-          <Link href="/memberships" onClick={() => setMenuOpen(false)}>
-            <button type="button" className="w-full py-1.5 bg-transparent border border-[#f0b429] rounded text-[11px] text-[#f0b429] font-semibold hover:bg-[#f0b429]/10 transition-colors min-h-[36px]">
-              Upgrade to Pro
-            </button>
-          </Link>
-        </div>
+        )}
         <form action={signOutAction}>
           <button
             type="submit"
@@ -137,7 +142,7 @@ export default function DashboardShell({
             ref={menuButtonRef}
             type="button"
             aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}
-            aria-expanded={menuOpen ? "true" : "false"}
+            aria-expanded={menuOpen}
             aria-controls="mobile-sidebar"
             onClick={() => setMenuOpen((v) => !v)}
             className="md:hidden flex items-center justify-center w-9 h-9 -ml-1 rounded-md text-[#888] hover:text-white hover:bg-[#1a1a1a] transition-colors shrink-0"
