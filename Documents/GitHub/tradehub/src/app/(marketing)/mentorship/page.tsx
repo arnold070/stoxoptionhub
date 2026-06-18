@@ -61,10 +61,10 @@ const tracks = [
 ];
 
 const mentors = [
-  { name: "David Osei", role: "Technical Analysis Lead", initials: "DO", color: "from-[#f0b429] to-[#e0a424]", exp: "12 yrs", spec: "Price action & momentum" },
+  { name: "David Connor", role: "Technical Analysis Lead", initials: "DC", color: "from-[#f0b429] to-[#e0a424]", exp: "12 yrs", spec: "Price action & momentum" },
   { name: "Priya Nair", role: "Risk Management Trainer", initials: "PN", color: "from-[#22c55e] to-[#16a34a]", exp: "9 yrs", spec: "Capital preservation & drawdown control" },
   { name: "Luca Ferrari", role: "Forex & Macro Analyst", initials: "LF", color: "from-[#6366f1] to-[#4f46e5]", exp: "14 yrs", spec: "Macro-driven forex strategy" },
-  { name: "Nadia Okonkwo", role: "Crypto Markets Educator", initials: "NO", color: "from-[#f97316] to-[#ea580c]", exp: "7 yrs", spec: "Crypto market structure & DeFi" },
+  { name: "Adrian James", role: "Crypto Markets Educator", initials: "AJ", color: "from-[#f97316] to-[#ea580c]", exp: "7 yrs", spec: "Crypto market structure & DeFi" },
 ];
 
 const timeline = [
