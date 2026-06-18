@@ -18,6 +18,14 @@ import {
   Menu,
   X,
   BarChart2,
+  Users,
+  Bell,
+  CreditCard,
+  PieChart,
+  Shield,
+  Globe,
+  FileText,
+  ArrowDownCircle,
 } from "lucide-react";
 import NotificationBell from "@/components/NotificationBell";
 
@@ -34,13 +42,22 @@ const navItems = [
 ];
 
 const adminNavItems = [
-  { href: "/admin", icon: LayoutDashboard, label: "Overview" },
-  { href: "/admin/deposits", icon: Wallet, label: "Deposits" },
-  { href: "/admin/withdrawals", icon: TrendingUp, label: "Withdrawals" },
-  { href: "/admin/transactions", icon: BarChart2, label: "Transactions" },
-  { href: "/admin/investments", icon: GraduationCap, label: "Investments" },
-  { href: "/admin/audit-logs", icon: BookOpen, label: "Audit Logs" },
-  { href: "/settings", icon: Settings, label: "Settings" },
+  { href: "/admin",                 icon: LayoutDashboard, label: "Overview" },
+  { href: "/admin/users",           icon: Users,           label: "Users" },
+  { href: "/admin/plans",           icon: GraduationCap,   label: "Mentorship Plans" },
+  { href: "/admin/strategies",      icon: TrendingUp,      label: "Copy Trading" },
+  { href: "/admin/investments",     icon: BarChart2,       label: "Investment Plans" },
+  { href: "/admin/deposits",        icon: Wallet,          label: "Deposits" },
+  { href: "/admin/withdrawals",     icon: ArrowDownCircle, label: "Withdrawals" },
+  { href: "/admin/transactions",    icon: FileText,        label: "Transactions" },
+  { href: "/admin/wallet",          icon: CreditCard,      label: "Wallet Mgmt" },
+  { href: "/admin/community",       icon: Globe,           label: "Communities" },
+  { href: "/admin/live-sessions",   icon: Video,           label: "Live Sessions" },
+  { href: "/admin/content",         icon: BookOpen,        label: "Content" },
+  { href: "/admin/notifications",   icon: Bell,            label: "Notifications" },
+  { href: "/admin/analytics",       icon: PieChart,        label: "Analytics" },
+  { href: "/admin/audit-logs",      icon: Shield,          label: "Audit Logs" },
+  { href: "/settings",              icon: Settings,        label: "Settings" },
 ];
 
 export default function DashboardShell({
