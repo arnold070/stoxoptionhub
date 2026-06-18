@@ -63,7 +63,7 @@ const plans = [
     risk: "Low",
     riskColor: "text-[#22c55e]",
     riskBg: "bg-[#22c55e]/10 border-[#22c55e]/20",
-    minAmount: "$100",
+    minAmount: "$1,000",
     perks: ["Diversified allocation", "Daily strategy report", "24/7 support"],
   },
   {
@@ -73,7 +73,7 @@ const plans = [
     risk: "Medium",
     riskColor: "text-[#f0b429]",
     riskBg: "bg-[#f0b429]/10 border-[#f0b429]/20",
-    minAmount: "$500",
+    minAmount: "$10,000",
     perks: ["Priority execution", "Weekly analyst briefing", "Mentorship access"],
     featured: true,
   },
@@ -84,7 +84,7 @@ const plans = [
     risk: "High",
     riskColor: "text-[#ef4444]",
     riskBg: "bg-[#ef4444]/10 border-[#ef4444]/20",
-    minAmount: "$2,000",
+    minAmount: "$20,000",
     perks: ["Full portfolio analytics", "Dedicated account manager", "VIP mentorship"],
   },
 ];

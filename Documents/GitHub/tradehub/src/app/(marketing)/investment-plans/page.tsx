@@ -18,7 +18,7 @@ const plans = [
     riskColor: "text-[#22c55e]",
     riskBg: "bg-[#22c55e]/10",
     riskBorder: "border-[#22c55e]/20",
-    minAmount: "$100",
+    minAmount: "$1,000",
     description: "A short-duration plan for investors new to copy trading. Allocates to conservative, diversified strategies with lower volatility exposure.",
     features: ["Lower volatility strategy basket", "30-day structured duration", "Automated lifecycle management", "Payout to wallet upon maturity"],
   },
@@ -31,7 +31,7 @@ const plans = [
     riskColor: "text-[#22c55e]",
     riskBg: "bg-[#22c55e]/10",
     riskBorder: "border-[#22c55e]/20",
-    minAmount: "$250",
+    minAmount: "$5,000",
     description: "A balanced plan combining defensive and growth strategies for a 45-day duration. Suitable for investors seeking diversification without extreme risk.",
     features: ["Equal-weight defensive / growth split", "45-day structured duration", "Mid-cycle rebalancing if applicable", "Suitable for moderate risk appetite"],
   },
@@ -44,7 +44,7 @@ const plans = [
     riskColor: "text-[#f0b429]",
     riskBg: "bg-[#f0b429]/10",
     riskBorder: "border-[#f0b429]/20",
-    minAmount: "$500",
+    minAmount: "$10,000",
     description: "A mid-duration plan using momentum-based trading strategies across major asset pairs. Suitable for investors with moderate risk tolerance.",
     features: ["Momentum strategy across multiple pairs", "60-day structured duration", "Professional trader management", "Dashboard tracking throughout"],
     featured: true,
@@ -58,17 +58,17 @@ const plans = [
     riskColor: "text-[#ef4444]",
     riskBg: "bg-[#ef4444]/10",
     riskBorder: "border-[#ef4444]/20",
-    minAmount: "$2,000",
+    minAmount: "$20,000",
     description: "A long-duration, high-complexity plan using multi-asset arbitrage strategies. For experienced investors with higher risk capacity.",
     features: ["Multi-asset arbitrage strategy", "90-day structured duration", "Advanced risk management applied", "Full audit trail in dashboard"],
   },
 ];
 
 const riskMatrix = [
-  { plan: "Starter Growth", duration: "30d", min: "$100", risk: "Low", riskClass: "text-[#22c55e]", dot: "bg-[#22c55e]" },
-  { plan: "Balanced Horizon", duration: "45d", min: "$250", risk: "Low–Med", riskClass: "text-[#22c55e]", dot: "bg-[#22c55e]" },
-  { plan: "Alpha Momentum", duration: "60d", min: "$500", risk: "Medium", riskClass: "text-[#f0b429]", dot: "bg-[#f0b429]" },
-  { plan: "Institutional Edge", duration: "90d", min: "$2,000", risk: "High", riskClass: "text-[#ef4444]", dot: "bg-[#ef4444]" },
+  { plan: "Starter Growth", duration: "30d", min: "$1,000", risk: "Low", riskClass: "text-[#22c55e]", dot: "bg-[#22c55e]" },
+  { plan: "Balanced Horizon", duration: "45d", min: "$5,000", risk: "Low–Med", riskClass: "text-[#22c55e]", dot: "bg-[#22c55e]" },
+  { plan: "Alpha Momentum", duration: "60d", min: "$10,000", risk: "Medium", riskClass: "text-[#f0b429]", dot: "bg-[#f0b429]" },
+  { plan: "Institutional Edge", duration: "90d", min: "$20,000", risk: "High", riskClass: "text-[#ef4444]", dot: "bg-[#ef4444]" },
 ];
 
 export default function InvestmentPlansPage() {

@@ -75,7 +75,7 @@ const categories = [
       },
       {
         q: "What is the minimum investment per plan?",
-        a: "Minimum investment varies by plan: $100 for Starter Growth, $250 for Balanced Horizon, $500 for Alpha Momentum, and $2,000 for Institutional Edge. Check the Investment Plans page for current details.",
+        a: "Minimum investment varies by plan: $1,000 for Starter Growth, $5,000 for Balanced Horizon, $10,000 for Alpha Momentum, and $20,000 for Institutional Edge. Check the Investment Plans page for current details.",
       },
     ],
   },
