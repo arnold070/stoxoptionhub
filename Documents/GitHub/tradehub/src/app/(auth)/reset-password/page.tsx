@@ -4,7 +4,7 @@ import { Suspense, useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { resetPassword } from "@/lib/actions/auth";
-import { Zap } from "lucide-react";
+import { Logo } from "@/components/Logo";
 
 function ResetPasswordForm() {
   const router = useRouter();
@@ -80,14 +80,8 @@ export default function ResetPasswordPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a] px-4 py-8">
       <div className="w-full max-w-sm">
-        <div className="flex items-center gap-2.5 justify-center mb-8">
-          <div className="w-9 h-9 bg-[#1a1a1a] rounded-xl border border-[#2a2a2a] flex items-center justify-center shrink-0">
-            <Zap size={18} className="text-[#f0b429]" />
-          </div>
-          <div>
-            <div className="text-[16px] font-bold text-white">StoxOptionHub</div>
-            <div className="text-[9px] text-[#444] uppercase tracking-widest">Institutional Grade</div>
-          </div>
+        <div className="flex justify-center mb-8">
+          <Logo href="/home" size={36} textTheme="light" />
         </div>
 
         <Suspense>
