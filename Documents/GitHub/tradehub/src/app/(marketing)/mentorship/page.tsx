@@ -15,7 +15,8 @@ const tracks = [
     badgeColor: "text-[#22c55e]",
     badgeBg: "bg-[#22c55e]/10 border-[#22c55e]/20",
     modules: 8,
-    duration: "4 weeks",
+    duration: "6 weeks",
+    price: "$5,000",
     topics: [
       "Introduction to financial markets",
       "Reading candlestick charts and timeframes",
@@ -31,7 +32,9 @@ const tracks = [
     badgeColor: "text-[#f0b429]",
     badgeBg: "bg-[#f0b429]/10 border-[#f0b429]/20",
     modules: 12,
-    duration: "6 weeks",
+    duration: "12 weeks",
+    durationNote: "3 months",
+    price: "$15,000",
     topics: [
       "Technical indicators (RSI, MACD, Bollinger Bands)",
       "Support and resistance identification",
@@ -48,7 +51,9 @@ const tracks = [
     badgeColor: "text-[#ef4444]",
     badgeBg: "bg-[#ef4444]/10 border-[#ef4444]/20",
     modules: 10,
-    duration: "5 weeks",
+    duration: "24 weeks",
+    durationNote: "6 months",
+    price: "$35,000",
     topics: [
       "Position sizing and capital allocation",
       "Risk management frameworks (1R, Kelly, Fixed fractional)",
@@ -140,7 +145,7 @@ export default function MentorshipPage() {
             </p>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {tracks.map(({ level, badge, badgeColor, badgeBg, modules, duration, topics, desc, featured }) => (
+            {tracks.map(({ level, badge, badgeColor, badgeBg, modules, duration, durationNote, price, topics, desc, featured }) => (
               <div key={level} className={`relative rounded-2xl p-6 flex flex-col transition-all ${
                 featured
                   ? "bg-[#111] border-2 border-[#f0b429]/40 shadow-[0_0_40px_rgba(240,180,41,0.07)]"
@@ -155,12 +160,15 @@ export default function MentorshipPage() {
                   <div className={`inline-flex items-center px-3 py-1 rounded-full border text-[11px] font-bold uppercase tracking-wider ${badgeColor} ${badgeBg}`}>
                     {badge}
                   </div>
-                  <div className="text-[11px] text-[#555]">{duration}</div>
+                  <div className="text-right">
+                    <div className="text-[11px] text-[#555]">{duration}{durationNote ? ` · ${durationNote}` : ""}</div>
+                  </div>
                 </div>
                 <h3 className="text-[20px] font-bold text-white mb-1">{level} Track</h3>
                 <p className="text-[12px] text-[#555] mb-3 leading-relaxed">{desc}</p>
-                <div className="text-[11px] text-[#555] mb-4">
-                  <span className="text-white font-semibold">{modules}</span> modules
+                <div className="mb-4">
+                  <div className="text-[28px] font-bold text-white leading-none">{price}</div>
+                  <div className="text-[11px] text-[#555] mt-0.5">{duration} program · <span className="text-white font-semibold">{modules}</span> modules</div>
                 </div>
                 <ul className="space-y-2 flex-1">
                   {topics.map((t) => (
