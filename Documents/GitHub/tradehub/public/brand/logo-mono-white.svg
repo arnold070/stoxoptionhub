@@ -12,7 +12,7 @@
     <path
       d="M30,22 L62,22 L70,30 L70,42 L62,50 L38,50 L30,58 L30,70 L38,78 L70,78"
       fill="none" stroke="#000000" stroke-width="14"
-      stroke-linecap="square" stroke-linejoin="miter"
+      stroke-linecap="round" stroke-linejoin="round"
     />
   </svg>
 

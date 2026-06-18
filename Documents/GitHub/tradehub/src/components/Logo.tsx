@@ -15,16 +15,15 @@ export function Logo({
   textTheme = "light",
   className = "",
 }: LogoProps) {
-  const textColor = textTheme === "dark" ? "#0d0d0d" : "#ffffff";
-  const accentColor = textTheme === "dark" ? "#c49000" : "#f0b429";
-  const fontSize = Math.max(12, Math.round(size * 0.44));
+  const textColorClass = textTheme === "dark" ? "text-[#0d0d0d]" : "text-white";
+  const accentColorClass =
+    textTheme === "dark" ? "text-[#c49000]" : "text-[#f0b429]";
 
-  const inner = (
-    <span
-      className={`flex items-center gap-2.5 shrink-0 ${className}`}
-      style={{ lineHeight: 1 }}
-    >
-      {/* Geometric S-mark on gold rounded square */}
+  const sharedClass = `flex items-center gap-2.5 shrink-0 leading-none ${className}`;
+
+  const children = (
+    <>
+      {/* Gold rounded-square with chamfered angular S mark */}
       <svg
         width={size}
         height={size}
@@ -32,43 +31,42 @@ export function Logo({
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
         aria-hidden="true"
-        style={{ flexShrink: 0 }}
+        className="block shrink-0"
       >
         <rect x="5" y="5" width="90" height="90" rx="15" fill="#f0b429" />
         <path
           d="M30,22 L62,22 L70,30 L70,42 L62,50 L38,50 L30,58 L30,70 L38,78 L70,78"
+          fill="none"
           stroke="#0d0d0d"
           strokeWidth="14"
-          strokeLinecap="square"
-          strokeLinejoin="miter"
+          strokeLinecap="round"
+          strokeLinejoin="round"
         />
       </svg>
 
       {showText && (
         <span
-          style={{
-            fontSize,
-            letterSpacing: "-0.3px",
-            color: textColor,
-            fontWeight: 800,
-            fontFamily:
-              "var(--font-geist-sans), 'Inter', system-ui, -apple-system, sans-serif",
-          }}
+          className={`text-[15px] font-extrabold tracking-tight ${textColorClass}`}
         >
           Stox
-          <span style={{ color: accentColor, fontWeight: 500 }}>Option</span>
+          <span className={`font-medium ${accentColorClass}`}>Option</span>
           Hub
         </span>
       )}
-    </span>
+    </>
   );
 
   if (href) {
     return (
-      <Link href={href} aria-label="StoxOptionHub home">
-        {inner}
+      <Link
+        href={href}
+        aria-label="StoxOptionHub home"
+        className={sharedClass}
+      >
+        {children}
       </Link>
     );
   }
-  return inner;
+
+  return <span className={sharedClass}>{children}</span>;
 }
