@@ -92,6 +92,9 @@ export const UserScalarFieldEnum = {
   isSuspended: 'isSuspended',
   avatarUrl: 'avatarUrl',
   phone: 'phone',
+  usdtAddress: 'usdtAddress',
+  btcAddress: 'btcAddress',
+  bnbAddress: 'bnbAddress',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

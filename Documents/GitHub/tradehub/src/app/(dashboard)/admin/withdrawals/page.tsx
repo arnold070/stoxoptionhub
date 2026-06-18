@@ -93,7 +93,7 @@ export default async function AdminWithdrawalsPage({
           <table className="w-full text-[13px] min-w-[700px]">
             <thead>
               <tr className="border-b border-[#1e1e1e]">
-                {["Date", "User", "Amount", "Destination Address", "Status", "Actions"].map((h) => (
+                {["Date", "User", "Amount", "Destination Address", "Saved Wallets", "Status", "Actions"].map((h) => (
                   <th key={h} className="text-left p-4 text-[#555] font-medium uppercase text-[10px] tracking-wider">
                     {h}
                   </th>
@@ -101,16 +101,41 @@ export default async function AdminWithdrawalsPage({
               </tr>
             </thead>
             <tbody>
-              {withdrawals.map((w) => (
+              {withdrawals.map((w) => {
+                const u = w.user as typeof w.user & { usdtAddress?: string | null; btcAddress?: string | null; bnbAddress?: string | null };
+                return (
                 <tr key={w.id} className="border-b border-[#1a1a1a] last:border-0">
                   <td className="p-4 text-[#888]">{formatDate(w.createdAt)}</td>
                   <td className="p-4">
-                    <div className="text-white font-medium">{w.user?.name}</div>
-                    <div className="text-[11px] text-[#555]">{w.user?.email}</div>
+                    <div className="text-white font-medium">{u?.name}</div>
+                    <div className="text-[11px] text-[#555]">{u?.email}</div>
                   </td>
                   <td className="p-4 font-semibold text-white">{formatCurrency(w.amount)}</td>
                   <td className="p-4 text-[#888] font-mono text-[11px] max-w-[180px] truncate">
                     {w.txHash ?? "—"}
+                  </td>
+                  <td className="p-4 text-[11px] space-y-1 min-w-[160px]">
+                    {u?.usdtAddress && (
+                      <div>
+                        <span className="text-[9px] text-[#f0b429] font-bold uppercase mr-1">USDT TRC20</span>
+                        <span className="font-mono text-[#888] break-all">{u.usdtAddress}</span>
+                      </div>
+                    )}
+                    {u?.btcAddress && (
+                      <div>
+                        <span className="text-[9px] text-[#f97316] font-bold uppercase mr-1">BTC</span>
+                        <span className="font-mono text-[#888] break-all">{u.btcAddress}</span>
+                      </div>
+                    )}
+                    {u?.bnbAddress && (
+                      <div>
+                        <span className="text-[9px] text-[#f0b429] font-bold uppercase mr-1">BNB BEP20</span>
+                        <span className="font-mono text-[#888] break-all">{u.bnbAddress}</span>
+                      </div>
+                    )}
+                    {!u?.usdtAddress && !u?.btcAddress && !u?.bnbAddress && (
+                      <span className="text-[#444]">None saved</span>
+                    )}
                   </td>
                   <td className="p-4">
                     <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${statusColor(w.status)}`}>
@@ -143,10 +168,11 @@ export default async function AdminWithdrawalsPage({
                     )}
                   </td>
                 </tr>
-              ))}
+              );
+              })}
               {withdrawals.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="p-8 text-center text-[#555]">
+                  <td colSpan={7} className="p-8 text-center text-[#555]">
                     No withdrawal requests found.
                   </td>
                 </tr>

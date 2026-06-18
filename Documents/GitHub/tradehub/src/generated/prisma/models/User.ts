@@ -34,6 +34,9 @@ export type UserMinAggregateOutputType = {
   isSuspended: boolean | null
   avatarUrl: string | null
   phone: string | null
+  usdtAddress: string | null
+  btcAddress: string | null
+  bnbAddress: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -48,6 +51,9 @@ export type UserMaxAggregateOutputType = {
   isSuspended: boolean | null
   avatarUrl: string | null
   phone: string | null
+  usdtAddress: string | null
+  btcAddress: string | null
+  bnbAddress: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -62,6 +68,9 @@ export type UserCountAggregateOutputType = {
   isSuspended: number
   avatarUrl: number
   phone: number
+  usdtAddress: number
+  btcAddress: number
+  bnbAddress: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -78,6 +87,9 @@ export type UserMinAggregateInputType = {
   isSuspended?: true
   avatarUrl?: true
   phone?: true
+  usdtAddress?: true
+  btcAddress?: true
+  bnbAddress?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -92,6 +104,9 @@ export type UserMaxAggregateInputType = {
   isSuspended?: true
   avatarUrl?: true
   phone?: true
+  usdtAddress?: true
+  btcAddress?: true
+  bnbAddress?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -106,6 +121,9 @@ export type UserCountAggregateInputType = {
   isSuspended?: true
   avatarUrl?: true
   phone?: true
+  usdtAddress?: true
+  btcAddress?: true
+  bnbAddress?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -193,6 +211,9 @@ export type UserGroupByOutputType = {
   isSuspended: boolean
   avatarUrl: string | null
   phone: string | null
+  usdtAddress: string | null
+  btcAddress: string | null
+  bnbAddress: string | null
   createdAt: Date
   updatedAt: Date
   _count: UserCountAggregateOutputType | null
@@ -228,6 +249,9 @@ export type UserWhereInput = {
   isSuspended?: Prisma.BoolFilter<"User"> | boolean
   avatarUrl?: Prisma.StringNullableFilter<"User"> | string | null
   phone?: Prisma.StringNullableFilter<"User"> | string | null
+  usdtAddress?: Prisma.StringNullableFilter<"User"> | string | null
+  btcAddress?: Prisma.StringNullableFilter<"User"> | string | null
+  bnbAddress?: Prisma.StringNullableFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   memberships?: Prisma.MembershipListRelationFilter
@@ -251,6 +275,9 @@ export type UserOrderByWithRelationInput = {
   isSuspended?: Prisma.SortOrder
   avatarUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   phone?: Prisma.SortOrderInput | Prisma.SortOrder
+  usdtAddress?: Prisma.SortOrderInput | Prisma.SortOrder
+  btcAddress?: Prisma.SortOrderInput | Prisma.SortOrder
+  bnbAddress?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   memberships?: Prisma.MembershipOrderByRelationAggregateInput
@@ -277,6 +304,9 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   isSuspended?: Prisma.BoolFilter<"User"> | boolean
   avatarUrl?: Prisma.StringNullableFilter<"User"> | string | null
   phone?: Prisma.StringNullableFilter<"User"> | string | null
+  usdtAddress?: Prisma.StringNullableFilter<"User"> | string | null
+  btcAddress?: Prisma.StringNullableFilter<"User"> | string | null
+  bnbAddress?: Prisma.StringNullableFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   memberships?: Prisma.MembershipListRelationFilter
@@ -300,6 +330,9 @@ export type UserOrderByWithAggregationInput = {
   isSuspended?: Prisma.SortOrder
   avatarUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   phone?: Prisma.SortOrderInput | Prisma.SortOrder
+  usdtAddress?: Prisma.SortOrderInput | Prisma.SortOrder
+  btcAddress?: Prisma.SortOrderInput | Prisma.SortOrder
+  bnbAddress?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
@@ -320,6 +353,9 @@ export type UserScalarWhereWithAggregatesInput = {
   isSuspended?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   avatarUrl?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   phone?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  usdtAddress?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  btcAddress?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  bnbAddress?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
 }
@@ -334,6 +370,9 @@ export type UserCreateInput = {
   isSuspended?: boolean
   avatarUrl?: string | null
   phone?: string | null
+  usdtAddress?: string | null
+  btcAddress?: string | null
+  bnbAddress?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipCreateNestedManyWithoutUserInput
@@ -357,6 +396,9 @@ export type UserUncheckedCreateInput = {
   isSuspended?: boolean
   avatarUrl?: string | null
   phone?: string | null
+  usdtAddress?: string | null
+  btcAddress?: string | null
+  bnbAddress?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutUserInput
@@ -380,6 +422,9 @@ export type UserUpdateInput = {
   isSuspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  usdtAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  btcAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bnbAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUpdateManyWithoutUserNestedInput
@@ -403,6 +448,9 @@ export type UserUncheckedUpdateInput = {
   isSuspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  usdtAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  btcAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bnbAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutUserNestedInput
@@ -426,6 +474,9 @@ export type UserCreateManyInput = {
   isSuspended?: boolean
   avatarUrl?: string | null
   phone?: string | null
+  usdtAddress?: string | null
+  btcAddress?: string | null
+  bnbAddress?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -440,6 +491,9 @@ export type UserUpdateManyMutationInput = {
   isSuspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  usdtAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  btcAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bnbAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -454,6 +508,9 @@ export type UserUncheckedUpdateManyInput = {
   isSuspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  usdtAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  btcAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bnbAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -468,6 +525,9 @@ export type UserCountOrderByAggregateInput = {
   isSuspended?: Prisma.SortOrder
   avatarUrl?: Prisma.SortOrder
   phone?: Prisma.SortOrder
+  usdtAddress?: Prisma.SortOrder
+  btcAddress?: Prisma.SortOrder
+  bnbAddress?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -482,6 +542,9 @@ export type UserMaxOrderByAggregateInput = {
   isSuspended?: Prisma.SortOrder
   avatarUrl?: Prisma.SortOrder
   phone?: Prisma.SortOrder
+  usdtAddress?: Prisma.SortOrder
+  btcAddress?: Prisma.SortOrder
+  bnbAddress?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -496,6 +559,9 @@ export type UserMinOrderByAggregateInput = {
   isSuspended?: Prisma.SortOrder
   avatarUrl?: Prisma.SortOrder
   phone?: Prisma.SortOrder
+  usdtAddress?: Prisma.SortOrder
+  btcAddress?: Prisma.SortOrder
+  bnbAddress?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -668,6 +734,9 @@ export type UserCreateWithoutMembershipsInput = {
   isSuspended?: boolean
   avatarUrl?: string | null
   phone?: string | null
+  usdtAddress?: string | null
+  btcAddress?: string | null
+  bnbAddress?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   wallet?: Prisma.WalletCreateNestedOneWithoutUserInput
@@ -690,6 +759,9 @@ export type UserUncheckedCreateWithoutMembershipsInput = {
   isSuspended?: boolean
   avatarUrl?: string | null
   phone?: string | null
+  usdtAddress?: string | null
+  btcAddress?: string | null
+  bnbAddress?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   wallet?: Prisma.WalletUncheckedCreateNestedOneWithoutUserInput
@@ -728,6 +800,9 @@ export type UserUpdateWithoutMembershipsInput = {
   isSuspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  usdtAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  btcAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bnbAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   wallet?: Prisma.WalletUpdateOneWithoutUserNestedInput
@@ -750,6 +825,9 @@ export type UserUncheckedUpdateWithoutMembershipsInput = {
   isSuspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  usdtAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  btcAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bnbAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   wallet?: Prisma.WalletUncheckedUpdateOneWithoutUserNestedInput
@@ -772,6 +850,9 @@ export type UserCreateWithoutAllocationsInput = {
   isSuspended?: boolean
   avatarUrl?: string | null
   phone?: string | null
+  usdtAddress?: string | null
+  btcAddress?: string | null
+  bnbAddress?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipCreateNestedManyWithoutUserInput
@@ -794,6 +875,9 @@ export type UserUncheckedCreateWithoutAllocationsInput = {
   isSuspended?: boolean
   avatarUrl?: string | null
   phone?: string | null
+  usdtAddress?: string | null
+  btcAddress?: string | null
+  bnbAddress?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutUserInput
@@ -832,6 +916,9 @@ export type UserUpdateWithoutAllocationsInput = {
   isSuspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  usdtAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  btcAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bnbAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUpdateManyWithoutUserNestedInput
@@ -854,6 +941,9 @@ export type UserUncheckedUpdateWithoutAllocationsInput = {
   isSuspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  usdtAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  btcAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bnbAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutUserNestedInput
@@ -876,6 +966,9 @@ export type UserCreateWithoutWalletInput = {
   isSuspended?: boolean
   avatarUrl?: string | null
   phone?: string | null
+  usdtAddress?: string | null
+  btcAddress?: string | null
+  bnbAddress?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipCreateNestedManyWithoutUserInput
@@ -898,6 +991,9 @@ export type UserUncheckedCreateWithoutWalletInput = {
   isSuspended?: boolean
   avatarUrl?: string | null
   phone?: string | null
+  usdtAddress?: string | null
+  btcAddress?: string | null
+  bnbAddress?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutUserInput
@@ -936,6 +1032,9 @@ export type UserUpdateWithoutWalletInput = {
   isSuspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  usdtAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  btcAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bnbAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUpdateManyWithoutUserNestedInput
@@ -958,6 +1057,9 @@ export type UserUncheckedUpdateWithoutWalletInput = {
   isSuspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  usdtAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  btcAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bnbAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutUserNestedInput
@@ -980,6 +1082,9 @@ export type UserCreateWithoutTransactionsInput = {
   isSuspended?: boolean
   avatarUrl?: string | null
   phone?: string | null
+  usdtAddress?: string | null
+  btcAddress?: string | null
+  bnbAddress?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipCreateNestedManyWithoutUserInput
@@ -1002,6 +1107,9 @@ export type UserUncheckedCreateWithoutTransactionsInput = {
   isSuspended?: boolean
   avatarUrl?: string | null
   phone?: string | null
+  usdtAddress?: string | null
+  btcAddress?: string | null
+  bnbAddress?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutUserInput
@@ -1040,6 +1148,9 @@ export type UserUpdateWithoutTransactionsInput = {
   isSuspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  usdtAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  btcAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bnbAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUpdateManyWithoutUserNestedInput
@@ -1062,6 +1173,9 @@ export type UserUncheckedUpdateWithoutTransactionsInput = {
   isSuspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  usdtAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  btcAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bnbAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutUserNestedInput
@@ -1084,6 +1198,9 @@ export type UserCreateWithoutInvestmentsInput = {
   isSuspended?: boolean
   avatarUrl?: string | null
   phone?: string | null
+  usdtAddress?: string | null
+  btcAddress?: string | null
+  bnbAddress?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipCreateNestedManyWithoutUserInput
@@ -1106,6 +1223,9 @@ export type UserUncheckedCreateWithoutInvestmentsInput = {
   isSuspended?: boolean
   avatarUrl?: string | null
   phone?: string | null
+  usdtAddress?: string | null
+  btcAddress?: string | null
+  bnbAddress?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutUserInput
@@ -1144,6 +1264,9 @@ export type UserUpdateWithoutInvestmentsInput = {
   isSuspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  usdtAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  btcAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bnbAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUpdateManyWithoutUserNestedInput
@@ -1166,6 +1289,9 @@ export type UserUncheckedUpdateWithoutInvestmentsInput = {
   isSuspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  usdtAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  btcAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bnbAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutUserNestedInput
@@ -1188,6 +1314,9 @@ export type UserCreateWithoutNotificationsInput = {
   isSuspended?: boolean
   avatarUrl?: string | null
   phone?: string | null
+  usdtAddress?: string | null
+  btcAddress?: string | null
+  bnbAddress?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipCreateNestedManyWithoutUserInput
@@ -1210,6 +1339,9 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   isSuspended?: boolean
   avatarUrl?: string | null
   phone?: string | null
+  usdtAddress?: string | null
+  btcAddress?: string | null
+  bnbAddress?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutUserInput
@@ -1248,6 +1380,9 @@ export type UserUpdateWithoutNotificationsInput = {
   isSuspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  usdtAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  btcAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bnbAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUpdateManyWithoutUserNestedInput
@@ -1270,6 +1405,9 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   isSuspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  usdtAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  btcAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bnbAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutUserNestedInput
@@ -1292,6 +1430,9 @@ export type UserCreateWithoutVerificationTokensInput = {
   isSuspended?: boolean
   avatarUrl?: string | null
   phone?: string | null
+  usdtAddress?: string | null
+  btcAddress?: string | null
+  bnbAddress?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipCreateNestedManyWithoutUserInput
@@ -1314,6 +1455,9 @@ export type UserUncheckedCreateWithoutVerificationTokensInput = {
   isSuspended?: boolean
   avatarUrl?: string | null
   phone?: string | null
+  usdtAddress?: string | null
+  btcAddress?: string | null
+  bnbAddress?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutUserInput
@@ -1352,6 +1496,9 @@ export type UserUpdateWithoutVerificationTokensInput = {
   isSuspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  usdtAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  btcAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bnbAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUpdateManyWithoutUserNestedInput
@@ -1374,6 +1521,9 @@ export type UserUncheckedUpdateWithoutVerificationTokensInput = {
   isSuspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  usdtAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  btcAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bnbAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutUserNestedInput
@@ -1396,6 +1546,9 @@ export type UserCreateWithoutPasswordResetsInput = {
   isSuspended?: boolean
   avatarUrl?: string | null
   phone?: string | null
+  usdtAddress?: string | null
+  btcAddress?: string | null
+  bnbAddress?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipCreateNestedManyWithoutUserInput
@@ -1418,6 +1571,9 @@ export type UserUncheckedCreateWithoutPasswordResetsInput = {
   isSuspended?: boolean
   avatarUrl?: string | null
   phone?: string | null
+  usdtAddress?: string | null
+  btcAddress?: string | null
+  bnbAddress?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutUserInput
@@ -1456,6 +1612,9 @@ export type UserUpdateWithoutPasswordResetsInput = {
   isSuspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  usdtAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  btcAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bnbAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUpdateManyWithoutUserNestedInput
@@ -1478,6 +1637,9 @@ export type UserUncheckedUpdateWithoutPasswordResetsInput = {
   isSuspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  usdtAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  btcAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bnbAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutUserNestedInput
@@ -1500,6 +1662,9 @@ export type UserCreateWithoutAuditLogsInput = {
   isSuspended?: boolean
   avatarUrl?: string | null
   phone?: string | null
+  usdtAddress?: string | null
+  btcAddress?: string | null
+  bnbAddress?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipCreateNestedManyWithoutUserInput
@@ -1522,6 +1687,9 @@ export type UserUncheckedCreateWithoutAuditLogsInput = {
   isSuspended?: boolean
   avatarUrl?: string | null
   phone?: string | null
+  usdtAddress?: string | null
+  btcAddress?: string | null
+  bnbAddress?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutUserInput
@@ -1560,6 +1728,9 @@ export type UserUpdateWithoutAuditLogsInput = {
   isSuspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  usdtAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  btcAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bnbAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUpdateManyWithoutUserNestedInput
@@ -1582,6 +1753,9 @@ export type UserUncheckedUpdateWithoutAuditLogsInput = {
   isSuspended?: Prisma.BoolFieldUpdateOperationsInput | boolean
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  usdtAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  btcAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bnbAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutUserNestedInput
@@ -1698,6 +1872,9 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   isSuspended?: boolean
   avatarUrl?: boolean
   phone?: boolean
+  usdtAddress?: boolean
+  btcAddress?: boolean
+  bnbAddress?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   memberships?: boolean | Prisma.User$membershipsArgs<ExtArgs>
@@ -1722,6 +1899,9 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   isSuspended?: boolean
   avatarUrl?: boolean
   phone?: boolean
+  usdtAddress?: boolean
+  btcAddress?: boolean
+  bnbAddress?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["user"]>
@@ -1736,6 +1916,9 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   isSuspended?: boolean
   avatarUrl?: boolean
   phone?: boolean
+  usdtAddress?: boolean
+  btcAddress?: boolean
+  bnbAddress?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["user"]>
@@ -1750,11 +1933,14 @@ export type UserSelectScalar = {
   isSuspended?: boolean
   avatarUrl?: boolean
   phone?: boolean
+  usdtAddress?: boolean
+  btcAddress?: boolean
+  bnbAddress?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "password" | "name" | "role" | "emailVerified" | "isSuspended" | "avatarUrl" | "phone" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "password" | "name" | "role" | "emailVerified" | "isSuspended" | "avatarUrl" | "phone" | "usdtAddress" | "btcAddress" | "bnbAddress" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   memberships?: boolean | Prisma.User$membershipsArgs<ExtArgs>
   wallet?: boolean | Prisma.User$walletArgs<ExtArgs>
@@ -1793,6 +1979,9 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     isSuspended: boolean
     avatarUrl: string | null
     phone: string | null
+    usdtAddress: string | null
+    btcAddress: string | null
+    bnbAddress: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["user"]>
@@ -2236,6 +2425,9 @@ export interface UserFieldRefs {
   readonly isSuspended: Prisma.FieldRef<"User", 'Boolean'>
   readonly avatarUrl: Prisma.FieldRef<"User", 'String'>
   readonly phone: Prisma.FieldRef<"User", 'String'>
+  readonly usdtAddress: Prisma.FieldRef<"User", 'String'>
+  readonly btcAddress: Prisma.FieldRef<"User", 'String'>
+  readonly bnbAddress: Prisma.FieldRef<"User", 'String'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"User", 'DateTime'>
 }

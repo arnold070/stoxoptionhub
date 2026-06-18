@@ -146,7 +146,9 @@ export async function getWithdrawalRequests({
       ...(status ? { status } : {}),
       ...(userId ? { userId } : {}),
     },
-    include: { user: { select: { name: true, email: true } } },
+    include: {
+      user: { select: { name: true, email: true, usdtAddress: true, btcAddress: true, bnbAddress: true } },
+    },
     orderBy: { createdAt: "desc" },
     skip: (page - 1) * limit,
     take: limit,

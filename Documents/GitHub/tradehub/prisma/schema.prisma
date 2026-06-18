@@ -93,6 +93,9 @@ model User {
   isSuspended   Boolean  @default(false)
   avatarUrl     String?
   phone         String?
+  usdtAddress   String?
+  btcAddress    String?
+  bnbAddress    String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 

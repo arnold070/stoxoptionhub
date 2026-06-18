@@ -17,6 +17,9 @@ const RegisterSchema = z.object({
     .regex(/[A-Z]/, { error: "Password must contain an uppercase letter" })
     .regex(/[0-9]/, { error: "Password must contain a number" }),
   name: z.string().min(2, { error: "Name must be at least 2 characters" }),
+  usdtAddress: z.string().optional(),
+  btcAddress: z.string().optional(),
+  bnbAddress: z.string().optional(),
 });
 
 const LoginSchema = z.object({
@@ -32,6 +35,9 @@ export async function registerUser(data: {
   email: string;
   password: string;
   name: string;
+  usdtAddress?: string;
+  btcAddress?: string;
+  bnbAddress?: string;
 }): Promise<AuthResult> {
   const ip = await getClientIp();
   const { allowed, retryAfterSeconds } = checkRateLimit(`register:${ip}`, 5, 60 * 60 * 1000);
@@ -45,7 +51,7 @@ export async function registerUser(data: {
     return { success: false, error: first?.message ?? "Validation failed" };
   }
 
-  const { email, password, name } = parsed.data;
+  const { email, password, name, usdtAddress, btcAddress, bnbAddress } = parsed.data;
 
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) {
@@ -55,7 +61,14 @@ export async function registerUser(data: {
   const hashedPassword = await bcrypt.hash(password, 12);
 
   const user = await prisma.user.create({
-    data: { email, password: hashedPassword, name },
+    data: {
+      email,
+      password: hashedPassword,
+      name,
+      usdtAddress: usdtAddress?.trim() || null,
+      btcAddress: btcAddress?.trim() || null,
+      bnbAddress: bnbAddress?.trim() || null,
+    },
   });
 
   await prisma.wallet.create({ data: { userId: user.id } });
@@ -158,6 +171,26 @@ export async function updateProfile(data: {
   await prisma.user.update({
     where: { id: session.userId },
     data: { name: parsed.data.name, phone: parsed.data.phone || null },
+  });
+
+  return { success: true };
+}
+
+export async function updateWalletAddresses(data: {
+  usdtAddress?: string;
+  btcAddress?: string;
+  bnbAddress?: string;
+}): Promise<AuthResult> {
+  const session = await getSession();
+  if (!session) return { success: false, error: "Not authenticated" };
+
+  await prisma.user.update({
+    where: { id: session.userId },
+    data: {
+      usdtAddress: data.usdtAddress?.trim() || null,
+      btcAddress: data.btcAddress?.trim() || null,
+      bnbAddress: data.bnbAddress?.trim() || null,
+    },
   });
 
   return { success: true };

@@ -2,9 +2,9 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { updateProfile, changePassword } from "@/lib/actions/auth";
+import { updateProfile, changePassword, updateWalletAddresses } from "@/lib/actions/auth";
 import { formatDate } from "@/lib/utils";
-import { User as UserIcon, Lock, ShieldCheck } from "lucide-react";
+import { User as UserIcon, Lock, ShieldCheck, Wallet } from "lucide-react";
 
 type SettingsUser = {
   id: string;
@@ -13,6 +13,9 @@ type SettingsUser = {
   phone: string | null;
   role: string;
   createdAt: Date;
+  usdtAddress: string | null;
+  btcAddress: string | null;
+  bnbAddress: string | null;
 };
 
 const inputCls = "w-full px-4 py-2.5 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg text-[13px] text-white placeholder:text-[#444] outline-none focus:border-[#f0b429]/50 transition-colors";
@@ -22,8 +25,10 @@ export default function SettingsClient({ user }: { user: SettingsUser }) {
   const router = useRouter();
   const [isProfilePending, startProfileTransition] = useTransition();
   const [isPasswordPending, startPasswordTransition] = useTransition();
+  const [isWalletPending, startWalletTransition] = useTransition();
   const [profileMessage, setProfileMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [passwordMessage, setPasswordMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [walletMessage, setWalletMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   function handleProfileSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -39,6 +44,25 @@ export default function SettingsClient({ user }: { user: SettingsUser }) {
         router.refresh();
       } else {
         setProfileMessage({ type: "error", text: result.error });
+      }
+    });
+  }
+
+  function handleWalletSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = new FormData(e.currentTarget);
+    setWalletMessage(null);
+    startWalletTransition(async () => {
+      const result = await updateWalletAddresses({
+        usdtAddress: form.get("usdtAddress") as string,
+        btcAddress: form.get("btcAddress") as string,
+        bnbAddress: form.get("bnbAddress") as string,
+      });
+      if (result.success) {
+        setWalletMessage({ type: "success", text: "Wallet addresses saved." });
+        router.refresh();
+      } else {
+        setWalletMessage({ type: "error", text: result.error });
       }
     });
   }
@@ -122,6 +146,76 @@ export default function SettingsClient({ user }: { user: SettingsUser }) {
           <button type="submit" disabled={isProfilePending}
             className="px-5 py-2.5 bg-[#f0b429] hover:bg-[#e0a424] disabled:opacity-50 text-black text-[12px] font-bold rounded-lg uppercase tracking-wide transition-colors">
             {isProfilePending ? "Saving…" : "Save Changes"}
+          </button>
+        </form>
+      </div>
+
+      {/* Wallet addresses */}
+      <div className="bg-[#111] border border-[#1e1e1e] rounded-xl p-4 sm:p-6">
+        <h2 className="text-[15px] font-semibold text-white mb-1 flex items-center gap-2">
+          <Wallet size={16} className="text-[#f0b429]" /> Withdrawal Wallet Addresses
+        </h2>
+        <p className="text-[12px] text-[#555] mb-5">Save your crypto addresses for faster withdrawals. Admin uses these to process your payouts.</p>
+
+        {walletMessage && (
+          <div className={`mb-4 p-3 rounded-lg text-[12px] ${
+            walletMessage.type === "success"
+              ? "bg-[#22c55e]/10 border border-[#22c55e]/20 text-[#22c55e]"
+              : "bg-[#ef4444]/10 border border-[#ef4444]/20 text-[#ef4444]"
+          }`}>
+            {walletMessage.text}
+          </div>
+        )}
+
+        <form onSubmit={handleWalletSubmit} className="space-y-4">
+          <div>
+            <label htmlFor="usdtAddress" className={labelCls}>
+              USDT Address <span className="text-[#f0b429] normal-case tracking-normal font-normal">TRC-20</span>
+            </label>
+            <input
+              id="usdtAddress"
+              name="usdtAddress"
+              type="text"
+              defaultValue={user.usdtAddress ?? ""}
+              placeholder="T..."
+              autoComplete="off"
+              spellCheck={false}
+              className={`${inputCls} font-mono`}
+            />
+          </div>
+          <div>
+            <label htmlFor="btcAddress" className={labelCls}>
+              Bitcoin Address <span className="text-[#f97316] normal-case tracking-normal font-normal">BTC</span>
+            </label>
+            <input
+              id="btcAddress"
+              name="btcAddress"
+              type="text"
+              defaultValue={user.btcAddress ?? ""}
+              placeholder="bc1... or 1... or 3..."
+              autoComplete="off"
+              spellCheck={false}
+              className={`${inputCls} font-mono`}
+            />
+          </div>
+          <div>
+            <label htmlFor="bnbAddress" className={labelCls}>
+              BNB Address <span className="text-[#f0b429] normal-case tracking-normal font-normal">BEP-20</span>
+            </label>
+            <input
+              id="bnbAddress"
+              name="bnbAddress"
+              type="text"
+              defaultValue={user.bnbAddress ?? ""}
+              placeholder="0x..."
+              autoComplete="off"
+              spellCheck={false}
+              className={`${inputCls} font-mono`}
+            />
+          </div>
+          <button type="submit" disabled={isWalletPending}
+            className="px-5 py-2.5 bg-[#f0b429] hover:bg-[#e0a424] disabled:opacity-50 text-black text-[12px] font-bold rounded-lg uppercase tracking-wide transition-colors">
+            {isWalletPending ? "Saving…" : "Save Addresses"}
           </button>
         </form>
       </div>
