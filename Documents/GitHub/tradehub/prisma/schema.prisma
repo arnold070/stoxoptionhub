@@ -90,7 +90,10 @@ model User {
   name          String
   role          Role     @default(MEMBER)
   emailVerified Boolean  @default(false)
-  isSuspended   Boolean  @default(false)
+  isSuspended   Boolean   @default(false)
+  isBanned      Boolean   @default(false)
+  deletedAt     DateTime?
+  adminNote     String?
   avatarUrl     String?
   phone         String?
   usdtAddress   String?
@@ -363,4 +366,25 @@ model AuditLog {
   user User? @relation(fields: [userId], references: [id])
 
   @@map("audit_logs")
+}
+
+model SiteConfig {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  updatedAt DateTime @updatedAt
+
+  @@map("site_config")
+}
+
+model CmsPage {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  content     String   @default("{}")
+  isPublished Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("cms_pages")
 }

@@ -66,7 +66,9 @@ export const ModelName = {
   Community: 'Community',
   VerificationToken: 'VerificationToken',
   PasswordResetToken: 'PasswordResetToken',
-  AuditLog: 'AuditLog'
+  AuditLog: 'AuditLog',
+  SiteConfig: 'SiteConfig',
+  CmsPage: 'CmsPage'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -90,6 +92,9 @@ export const UserScalarFieldEnum = {
   role: 'role',
   emailVerified: 'emailVerified',
   isSuspended: 'isSuspended',
+  isBanned: 'isBanned',
+  deletedAt: 'deletedAt',
+  adminNote: 'adminNote',
   avatarUrl: 'avatarUrl',
   phone: 'phone',
   usdtAddress: 'usdtAddress',
@@ -331,6 +336,29 @@ export const AuditLogScalarFieldEnum = {
 } as const
 
 export type AuditLogScalarFieldEnum = (typeof AuditLogScalarFieldEnum)[keyof typeof AuditLogScalarFieldEnum]
+
+
+export const SiteConfigScalarFieldEnum = {
+  id: 'id',
+  key: 'key',
+  value: 'value',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SiteConfigScalarFieldEnum = (typeof SiteConfigScalarFieldEnum)[keyof typeof SiteConfigScalarFieldEnum]
+
+
+export const CmsPageScalarFieldEnum = {
+  id: 'id',
+  slug: 'slug',
+  title: 'title',
+  content: 'content',
+  isPublished: 'isPublished',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CmsPageScalarFieldEnum = (typeof CmsPageScalarFieldEnum)[keyof typeof CmsPageScalarFieldEnum]
 
 
 export const SortOrder = {

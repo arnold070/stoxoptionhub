@@ -25,6 +25,8 @@ import {
   Globe,
   FileText,
   ArrowDownCircle,
+  Headphones,
+  LayoutTemplate,
 } from "lucide-react";
 import NotificationBell from "@/components/NotificationBell";
 import { Logo } from "@/components/Logo";
@@ -57,6 +59,8 @@ const adminNavItems = [
   { href: "/admin/notifications",   icon: Bell,            label: "Notifications" },
   { href: "/admin/analytics",       icon: PieChart,        label: "Analytics" },
   { href: "/admin/audit-logs",      icon: Shield,          label: "Audit Logs" },
+  { href: "/admin/live-chat",       icon: Headphones,      label: "Live Chat" },
+  { href: "/admin/cms",             icon: LayoutTemplate,  label: "CMS" },
   { href: "/settings",              icon: Settings,        label: "Settings" },
 ];
 
@@ -159,7 +163,7 @@ export default function DashboardShell({
             ref={menuButtonRef}
             type="button"
             aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}
-            aria-expanded={menuOpen}
+            aria-expanded={menuOpen ? "true" : "false"}
             aria-controls="mobile-sidebar"
             onClick={() => setMenuOpen((v) => !v)}
             className="md:hidden flex items-center justify-center w-9 h-9 -ml-1 rounded-md text-[#888] hover:text-white hover:bg-[#1a1a1a] transition-colors shrink-0"

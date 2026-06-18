@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { createNotification, sendEmailNotification } from "@/lib/notifications";
 import type { Role, TransactionStatus, TransactionType, StrategyTier, ContentType, CommunityType } from "@/generated/prisma/enums";
+import bcrypt from "bcryptjs";
 
 type ActionResult = { success: true } | { success: false; error: string };
 
@@ -840,5 +841,368 @@ export async function getAnalyticsData() {
     roleCounts,
     depositCount: recentDeposits.length,
     withdrawalCount: recentWithdrawals.length,
+  };
+}
+
+// ─── Enhanced User Management ────────────────────────────────────────────────
+
+export async function getFilteredUsers({
+  search = "",
+  status = "all",
+  role = "",
+  page = 1,
+  limit = 25,
+  sortBy = "createdAt",
+  sortDir = "desc",
+}: {
+  search?: string;
+  status?: string;
+  role?: string;
+  page?: number;
+  limit?: number;
+  sortBy?: string;
+  sortDir?: string;
+} = {}) {
+  const session = await requireAdmin();
+  if (!session) return { users: [], total: 0 };
+
+  const where: Record<string, unknown> = {};
+
+  if (search.trim()) {
+    where.OR = [
+      { name: { contains: search.trim() } },
+      { email: { contains: search.trim() } },
+    ];
+  }
+
+  if (role) where.role = role;
+
+  if (status === "active") {
+    where.isSuspended = false;
+    where.isBanned = false;
+    where.deletedAt = null;
+  } else if (status === "suspended") {
+    where.isSuspended = true;
+    where.isBanned = false;
+    where.deletedAt = null;
+  } else if (status === "banned") {
+    where.isBanned = true;
+    where.deletedAt = null;
+  } else if (status === "deleted") {
+    where.deletedAt = { not: null };
+  }
+
+  const validSortFields = ["createdAt", "name", "email", "updatedAt"];
+  const orderField = validSortFields.includes(sortBy) ? sortBy : "createdAt";
+  const orderDir = sortDir === "asc" ? ("asc" as const) : ("desc" as const);
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const w = where as any;
+  const [users, total] = await Promise.all([
+    prisma.user.findMany({
+      where: w,
+      omit: { password: true },
+      include: {
+        wallet: { select: { balance: true } },
+        memberships: {
+          where: { status: "ACTIVE" },
+          include: { plan: { select: { name: true } } },
+          take: 1,
+        },
+        _count: { select: { transactions: true, investments: true } },
+      },
+      orderBy: { [orderField]: orderDir },
+      skip: (page - 1) * limit,
+      take: limit,
+    }),
+    prisma.user.count({ where: w }),
+  ]);
+
+  return { users, total };
+}
+
+export async function getUserDetail(userId: string) {
+  const session = await requireAdmin();
+  if (!session) return null;
+
+  return prisma.user.findUnique({
+    where: { id: userId },
+    omit: { password: true },
+    include: {
+      wallet: true,
+      memberships: {
+        include: { plan: { select: { name: true, price: true } } },
+        orderBy: { createdAt: "desc" },
+      },
+      transactions: { orderBy: { createdAt: "desc" }, take: 20 },
+      investments: {
+        include: { plan: { select: { name: true } } },
+        orderBy: { createdAt: "desc" },
+        take: 10,
+      },
+      _count: {
+        select: { transactions: true, investments: true, memberships: true },
+      },
+    },
+  });
+}
+
+export async function updateUserProfile(
+  userId: string,
+  data: { name?: string; email?: string; phone?: string | null }
+): Promise<ActionResult> {
+  const session = await requireAdmin();
+  if (!session) return { success: false, error: "Insufficient permissions" };
+
+  const update: typeof data = {};
+  if (data.name !== undefined) update.name = data.name.trim();
+  if (data.email !== undefined) update.email = data.email.trim().toLowerCase();
+  if (data.phone !== undefined) update.phone = data.phone?.trim() || null;
+
+  if (update.name !== undefined && update.name.length < 2)
+    return { success: false, error: "Name must be at least 2 characters" };
+  if (update.email !== undefined && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(update.email))
+    return { success: false, error: "Invalid email address" };
+
+  try {
+    await prisma.user.update({ where: { id: userId }, data: update });
+    await prisma.auditLog.create({
+      data: {
+        userId: session.userId,
+        action: "UPDATE_USER_PROFILE",
+        entity: "User",
+        entityId: userId,
+        details: Object.keys(update).join(", "),
+      },
+    });
+    return { success: true };
+  } catch (e: unknown) {
+    if ((e as { code?: string })?.code === "P2002")
+      return { success: false, error: "Email already in use by another account" };
+    return { success: false, error: "Profile update failed" };
+  }
+}
+
+export async function adminBanUser(userId: string, note?: string): Promise<ActionResult> {
+  const session = await requireAdmin();
+  if (!session) return { success: false, error: "Insufficient permissions" };
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: { isBanned: true, isSuspended: true, ...(note ? { adminNote: note } : {}) },
+  });
+  await prisma.auditLog.create({
+    data: { userId: session.userId, action: "BAN_USER", entity: "User", entityId: userId, details: note },
+  });
+  return { success: true };
+}
+
+export async function adminUnbanUser(userId: string): Promise<ActionResult> {
+  const session = await requireAdmin();
+  if (!session) return { success: false, error: "Insufficient permissions" };
+
+  await prisma.user.update({ where: { id: userId }, data: { isBanned: false, isSuspended: false } });
+  await prisma.auditLog.create({
+    data: { userId: session.userId, action: "UNBAN_USER", entity: "User", entityId: userId },
+  });
+  return { success: true };
+}
+
+export async function adminSoftDeleteUser(userId: string): Promise<ActionResult> {
+  const session = await requireAdmin();
+  if (!session) return { success: false, error: "Insufficient permissions" };
+  if (userId === session.userId) return { success: false, error: "Cannot delete your own account" };
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: { deletedAt: new Date(), isSuspended: true },
+  });
+  await prisma.auditLog.create({
+    data: { userId: session.userId, action: "SOFT_DELETE_USER", entity: "User", entityId: userId },
+  });
+  return { success: true };
+}
+
+export async function adminRestoreUser(userId: string): Promise<ActionResult> {
+  const session = await requireAdmin();
+  if (!session) return { success: false, error: "Insufficient permissions" };
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: { deletedAt: null, isSuspended: false, isBanned: false },
+  });
+  await prisma.auditLog.create({
+    data: { userId: session.userId, action: "RESTORE_USER", entity: "User", entityId: userId },
+  });
+  return { success: true };
+}
+
+export async function adminSetNote(userId: string, note: string): Promise<ActionResult> {
+  const session = await requireAdmin();
+  if (!session) return { success: false, error: "Insufficient permissions" };
+
+  await prisma.user.update({ where: { id: userId }, data: { adminNote: note.trim() || null } });
+  await prisma.auditLog.create({
+    data: { userId: session.userId, action: "SET_ADMIN_NOTE", entity: "User", entityId: userId },
+  });
+  return { success: true };
+}
+
+export async function adminResetPassword(userId: string, newPassword: string): Promise<ActionResult> {
+  const session = await requireAdmin();
+  if (!session) return { success: false, error: "Insufficient permissions" };
+  if (!newPassword || newPassword.length < 8)
+    return { success: false, error: "Password must be at least 8 characters" };
+
+  const hashed = await bcrypt.hash(newPassword, 12);
+  await prisma.user.update({ where: { id: userId }, data: { password: hashed } });
+  await prisma.auditLog.create({
+    data: { userId: session.userId, action: "ADMIN_RESET_PASSWORD", entity: "User", entityId: userId },
+  });
+  return { success: true };
+}
+
+export async function adminCreateUser(data: {
+  name: string;
+  email: string;
+  password: string;
+  role?: Role;
+}): Promise<ActionResult> {
+  const session = await requireAdmin();
+  if (!session) return { success: false, error: "Insufficient permissions" };
+  if (!data.name?.trim() || data.name.trim().length < 2)
+    return { success: false, error: "Name must be at least 2 characters" };
+  if (!data.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email))
+    return { success: false, error: "Invalid email address" };
+  if (!data.password || data.password.length < 8)
+    return { success: false, error: "Password must be at least 8 characters" };
+
+  try {
+    const hashed = await bcrypt.hash(data.password, 12);
+    const user = await prisma.user.create({
+      data: {
+        name: data.name.trim(),
+        email: data.email.trim().toLowerCase(),
+        password: hashed,
+        role: data.role ?? "MEMBER",
+        emailVerified: true,
+      },
+    });
+    await prisma.wallet.create({ data: { userId: user.id } });
+    await prisma.auditLog.create({
+      data: {
+        userId: session.userId,
+        action: "ADMIN_CREATE_USER",
+        entity: "User",
+        entityId: user.id,
+        details: data.email,
+      },
+    });
+    return { success: true };
+  } catch (e: unknown) {
+    if ((e as { code?: string })?.code === "P2002")
+      return { success: false, error: "Email already registered" };
+    return { success: false, error: "User creation failed" };
+  }
+}
+
+// ─── Site Config ─────────────────────────────────────────────────────────────
+
+export async function getSiteConfig(): Promise<Record<string, string>> {
+  const session = await requireAdmin();
+  if (!session) return {};
+  const entries = await prisma.siteConfig.findMany();
+  return Object.fromEntries(entries.map((e) => [e.key, e.value]));
+}
+
+export async function updateSiteConfig(key: string, value: string): Promise<ActionResult> {
+  const session = await requireAdmin();
+  if (!session) return { success: false, error: "Insufficient permissions" };
+
+  await prisma.siteConfig.upsert({
+    where: { key },
+    create: { key, value },
+    update: { value },
+  });
+  await prisma.auditLog.create({
+    data: {
+      userId: session.userId,
+      action: "UPDATE_SITE_CONFIG",
+      entity: "SiteConfig",
+      details: `${key}=${value.slice(0, 80)}`,
+    },
+  });
+  return { success: true };
+}
+
+export async function getPublicSiteConfig(keys: string[]): Promise<Record<string, string>> {
+  try {
+    const entries = await prisma.siteConfig.findMany({ where: { key: { in: keys } } });
+    return Object.fromEntries(entries.map((e) => [e.key, e.value]));
+  } catch {
+    return {};
+  }
+}
+
+// ─── CMS ─────────────────────────────────────────────────────────────────────
+
+export async function getCmsPages() {
+  const session = await requireAdmin();
+  if (!session) return [];
+  return prisma.cmsPage.findMany({ orderBy: { slug: "asc" } });
+}
+
+export async function upsertCmsPage(
+  slug: string,
+  data: { title: string; content: string; isPublished?: boolean }
+): Promise<ActionResult> {
+  const session = await requireAdmin();
+  if (!session) return { success: false, error: "Insufficient permissions" };
+
+  await prisma.cmsPage.upsert({
+    where: { slug },
+    create: { slug, title: data.title, content: data.content, isPublished: data.isPublished ?? true },
+    update: { title: data.title, content: data.content, isPublished: data.isPublished ?? true },
+  });
+  await prisma.auditLog.create({
+    data: { userId: session.userId, action: "UPSERT_CMS_PAGE", entity: "CmsPage", details: slug },
+  });
+  return { success: true };
+}
+
+export async function deleteCmsPage(id: string): Promise<ActionResult> {
+  const session = await requireAdmin();
+  if (!session) return { success: false, error: "Insufficient permissions" };
+
+  await prisma.cmsPage.delete({ where: { id } });
+  await prisma.auditLog.create({
+    data: { userId: session.userId, action: "DELETE_CMS_PAGE", entity: "CmsPage", entityId: id },
+  });
+  return { success: true };
+}
+
+// ─── Dashboard Activity Feed ─────────────────────────────────────────────────
+
+export async function getDashboardActivity() {
+  const session = await requireAdmin();
+  if (!session) return { logs: [], newUsersToday: 0, totalBalance: 0 };
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const [logs, newUsersToday, walletSum] = await Promise.all([
+    prisma.auditLog.findMany({
+      include: { user: { select: { name: true, email: true } } },
+      orderBy: { createdAt: "desc" },
+      take: 15,
+    }),
+    prisma.user.count({ where: { createdAt: { gte: today } } }),
+    prisma.wallet.aggregate({ _sum: { balance: true } }),
+  ]);
+
+  return {
+    logs,
+    newUsersToday,
+    totalBalance: walletSum._sum.balance ?? 0,
   };
 }

@@ -121,3 +121,13 @@ export type PasswordResetToken = Prisma.PasswordResetTokenModel
  * 
  */
 export type AuditLog = Prisma.AuditLogModel
+/**
+ * Model SiteConfig
+ * 
+ */
+export type SiteConfig = Prisma.SiteConfigModel
+/**
+ * Model CmsPage
+ * 
+ */
+export type CmsPage = Prisma.CmsPageModel
