@@ -64,8 +64,13 @@ export default function WalletClient({ wallet, transactions, stats, depositAddre
     e.preventDefault();
     const form = new FormData(e.currentTarget);
     startTransition(async () => {
-      const result = await requestWithdrawal({ amount: parseFloat(form.get("amount") as string), address: form.get("address") as string });
+      const result = await requestWithdrawal({
+        amount: parseFloat(form.get("amount") as string),
+        network: form.get("withdrawNetwork") as string,
+        address: form.get("address") as string,
+      });
       setMessage(result.success ? { type: "success", text: "Withdrawal request submitted." } : { type: "error", text: (result as any).error });
+      if (result.success) (e.target as HTMLFormElement).reset();
     });
   }
 
@@ -265,13 +270,51 @@ export default function WalletClient({ wallet, transactions, stats, depositAddre
             </div>
           ) : (
             <form onSubmit={handleWithdraw} className="space-y-3">
-              <input name="amount" type="number" min="20" max={wallet?.balance} step="0.01" required placeholder="Amount (min $20)"
-                className="w-full px-3 py-2 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg text-[12px] text-white placeholder:text-[#444] outline-none focus:border-[#f0b429]/50" />
-              <input name="address" type="text" required placeholder="Destination wallet address"
-                className="w-full px-3 py-2 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg text-[12px] text-white placeholder:text-[#444] outline-none focus:border-[#f0b429]/50" />
+              <div>
+                <div className="text-[10px] text-[#555] uppercase tracking-wider mb-1.5">Amount</div>
+                <input
+                  name="amount"
+                  type="number"
+                  min="20"
+                  max={wallet?.balance}
+                  step="0.01"
+                  required
+                  placeholder={`Min $20 — Available: ${formatCurrency(wallet?.balance ?? 0)}`}
+                  className="w-full px-3 py-2.5 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg text-[12px] text-white placeholder:text-[#444] outline-none focus:border-[#f0b429]/50"
+                />
+              </div>
+
+              <div>
+                <div className="text-[10px] text-[#555] uppercase tracking-wider mb-1.5">Network</div>
+                <select
+                  name="withdrawNetwork"
+                  required
+                  aria-label="Withdrawal network"
+                  className="w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-3 py-2.5 text-[13px] text-white outline-none focus:border-[#f0b429]/50"
+                >
+                  <option value="">Select network…</option>
+                  {NETWORKS.map((n) => (
+                    <option key={n.value} value={n.value}>{n.label}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <div className="text-[10px] text-[#555] uppercase tracking-wider mb-1.5">Destination Address</div>
+                <input
+                  name="address"
+                  type="text"
+                  required
+                  placeholder="Your wallet address"
+                  spellCheck={false}
+                  autoComplete="off"
+                  className="w-full px-3 py-2.5 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg text-[12px] text-white placeholder:text-[#444] outline-none focus:border-[#f0b429]/50 font-mono"
+                />
+              </div>
+
               <div className="flex items-start gap-2 p-3 bg-[#1a1a1a] rounded-lg">
                 <span className="text-[#f0b429] text-[12px]">ⓘ</span>
-                <p className="text-[11px] text-[#555]">Withdrawals are reviewed within 24h. Available balance: {formatCurrency(wallet?.balance ?? 0)}.</p>
+                <p className="text-[11px] text-[#555]">Withdrawals are reviewed and processed within 24h. Ensure the address matches the selected network.</p>
               </div>
               <button type="submit" disabled={isPending}
                 className="w-full py-2.5 bg-[#f0b429] hover:bg-[#e0a424] disabled:opacity-50 text-black text-[12px] font-bold rounded-lg uppercase tracking-wide transition-colors">

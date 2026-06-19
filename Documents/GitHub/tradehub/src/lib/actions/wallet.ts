@@ -95,9 +95,11 @@ export async function requestDeposit({
 
 export async function requestWithdrawal({
   amount,
+  network,
   address,
 }: {
   amount: number;
+  network: string;
   address: string;
 }): Promise<ActionResult> {
   const session = await getSession();
@@ -112,6 +114,7 @@ export async function requestWithdrawal({
   if (amount < MIN_WITHDRAWAL) {
     return { success: false, error: `Minimum withdrawal is $${MIN_WITHDRAWAL}` };
   }
+  if (!network.trim()) return { success: false, error: "Network is required" };
   if (!address.trim()) return { success: false, error: "Destination address is required" };
 
   const reserved = await prisma.$transaction(async (tx) => {
@@ -131,8 +134,9 @@ export async function requestWithdrawal({
         type: "WITHDRAWAL",
         amount,
         status: "PENDING",
+        network: network.trim(),
         txHash: address.trim(),
-        description: `Withdrawal to ${address.trim()}`,
+        description: `Withdrawal to ${address.trim()} (${network.trim()})`,
       },
     });
 

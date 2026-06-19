@@ -153,7 +153,7 @@ describe("requestWithdrawal", () => {
       })
     );
 
-    const result = await requestWithdrawal({ amount: 300, address: "0xABC123" });
+    const result = await requestWithdrawal({ amount: 300, network: "ERC20", address: "0xABC123" });
     expect(result.success).toBe(true);
     expect(txWalletUpdate).toHaveBeenCalledWith(
       expect.objectContaining({ data: { balance: { decrement: 300 } } })
@@ -175,7 +175,7 @@ describe("requestWithdrawal", () => {
       })
     );
 
-    const result = await requestWithdrawal({ amount: 200, address: "0xABC123" });
+    const result = await requestWithdrawal({ amount: 200, network: "ERC20", address: "0xABC123" });
     expect(result.success).toBe(false);
     if (result.success) return;
     expect(result.error).toMatch(/insufficient/i);
@@ -184,7 +184,7 @@ describe("requestWithdrawal", () => {
   it("rejects withdrawal below minimum", async () => {
     vi.mocked(getSession).mockResolvedValue(mockSession);
 
-    const result = await requestWithdrawal({ amount: 5, address: "0xABC123" });
+    const result = await requestWithdrawal({ amount: 5, network: "ERC20", address: "0xABC123" });
     expect(result.success).toBe(false);
     if (result.success) return;
     expect(result.error).toMatch(/minimum/i);
