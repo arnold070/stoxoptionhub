@@ -1,10 +1,29 @@
 import { NextResponse } from "next/server";
 
-const COIN_IDS = [
-  "bitcoin", "ethereum", "solana", "binancecoin",
-  "cardano", "avalanche-2", "polkadot", "matic-network",
-  "chainlink", "ripple", "dogecoin", "litecoin",
-].join(",");
+// ─── Binance public REST API — no key required ────────────────────────────────
+
+const PAIRS = [
+  "BTCUSDT", "ETHUSDT", "SOLUSDT", "BNBUSDT",
+  "ADAUSDT", "AVAXUSDT", "DOTUSDT", "MATICUSDT",
+  "LINKUSDT", "XRPUSDT", "DOGEUSDT", "LTCUSDT",
+];
+
+const SPARKLINE_PAIRS = ["BTCUSDT", "ETHUSDT", "SOLUSDT", "BNBUSDT"];
+
+const META: Record<string, { name: string }> = {
+  BTCUSDT:   { name: "Bitcoin" },
+  ETHUSDT:   { name: "Ethereum" },
+  SOLUSDT:   { name: "Solana" },
+  BNBUSDT:   { name: "BNB" },
+  ADAUSDT:   { name: "Cardano" },
+  AVAXUSDT:  { name: "Avalanche" },
+  DOTUSDT:   { name: "Polkadot" },
+  MATICUSDT: { name: "Polygon" },
+  LINKUSDT:  { name: "Chainlink" },
+  XRPUSDT:   { name: "XRP" },
+  DOGEUSDT:  { name: "Dogecoin" },
+  LTCUSDT:   { name: "Litecoin" },
+};
 
 export interface MarketCoin {
   id: string;
@@ -14,51 +33,70 @@ export interface MarketCoin {
   change24h: number;
   high24h: number;
   low24h: number;
-  marketCap: number;
+  volume24h: number;
   sparkline: number[];
 }
 
 export async function GET() {
   try {
-    const url =
-      `https://api.coingecko.com/api/v3/coins/markets` +
-      `?vs_currency=usd&ids=${COIN_IDS}&order=market_cap_desc` +
-      `&per_page=12&sparkline=true`;
+    const symbolsJson = encodeURIComponent(JSON.stringify(PAIRS));
 
-    const res = await fetch(url, {
-      next: { revalidate: 60 },
-      headers: { Accept: "application/json" },
+    // Parallel: 24 h tickers + 4h klines for sparklines
+    const [tickerRes, ...klinesResults] = await Promise.all([
+      fetch(
+        `https://api.binance.com/api/v3/ticker/24hr?symbols=${symbolsJson}`,
+        { next: { revalidate: 30 } }
+      ),
+      ...SPARKLINE_PAIRS.map((sym) =>
+        fetch(
+          `https://api.binance.com/api/v3/klines?symbol=${sym}&interval=4h&limit=14`,
+          { next: { revalidate: 3600 } }
+        )
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          .then((r) => (r.ok ? (r.json() as Promise<any[]>) : Promise.resolve([])))
+          .catch(() => [] as unknown[])
+      ),
+    ]);
+
+    if (!tickerRes.ok) throw new Error(`Binance ticker ${tickerRes.status}`);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const tickers: any[] = await tickerRes.json();
+
+    // sparkline map: pair → close prices
+    const sparkMap: Record<string, number[]> = {};
+    SPARKLINE_PAIRS.forEach((sym, i) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const klines = klinesResults[i] as any[];
+      if (Array.isArray(klines) && klines.length > 0) {
+        sparkMap[sym] = klines.map((k) => parseFloat(k[4])); // index 4 = close
+      }
     });
 
-    if (!res.ok) throw new Error(`CoinGecko ${res.status}`);
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const raw: any[] = await res.json();
-
-    const data: MarketCoin[] = raw.map((c) => {
-      const allPrices: number[] = c.sparkline_in_7d?.price ?? [];
-      // Downsample ~168 hourly points to 14 for the sparkline
-      const step = Math.max(1, Math.floor(allPrices.length / 14));
-      const sparkline = allPrices.filter((_, i) => i % step === 0).slice(-14);
+    const data: MarketCoin[] = tickers.map((t) => {
+      const symbol = (t.symbol as string).replace("USDT", "");
+      const price = parseFloat(t.lastPrice);
+      const open = parseFloat(t.openPrice);
+      const change24h = open > 0 ? ((price - open) / open) * 100 : 0;
       return {
-        id: c.id,
-        symbol: (c.symbol as string).toUpperCase(),
-        name: c.name,
-        price: c.current_price ?? 0,
-        change24h: c.price_change_percentage_24h ?? 0,
-        high24h: c.high_24h ?? 0,
-        low24h: c.low_24h ?? 0,
-        marketCap: c.market_cap ?? 0,
-        sparkline,
+        id: symbol.toLowerCase(),
+        symbol,
+        name: META[t.symbol]?.name ?? symbol,
+        price,
+        change24h,
+        high24h: parseFloat(t.highPrice),
+        low24h: parseFloat(t.lowPrice),
+        volume24h: parseFloat(t.quoteVolume),
+        sparkline: sparkMap[t.symbol] ?? [],
       };
     });
 
     return NextResponse.json(data, {
       headers: {
-        "Cache-Control": "public, s-maxage=60, stale-while-revalidate=120",
+        "Cache-Control": "public, s-maxage=30, stale-while-revalidate=60",
       },
     });
-  } catch {
+  } catch (err) {
+    console.error("[market]", err);
     return NextResponse.json({ error: "market_unavailable" }, { status: 503 });
   }
 }
