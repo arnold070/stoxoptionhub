@@ -17,16 +17,20 @@ export default function RegisterPage() {
     e.preventDefault();
     const form = new FormData(e.currentTarget);
     startTransition(async () => {
-      const result = await registerUser({
-        name: form.get("name") as string,
-        email: form.get("email") as string,
-        password: form.get("password") as string,
-        usdtAddress: form.get("usdtAddress") as string,
-        btcAddress: form.get("btcAddress") as string,
-        bnbAddress: form.get("bnbAddress") as string,
-      });
-      if (result.success) { router.push("/dashboard"); router.refresh(); }
-      else setError(result.error);
+      try {
+        const result = await registerUser({
+          name: form.get("name") as string,
+          email: form.get("email") as string,
+          password: form.get("password") as string,
+          usdtAddress: form.get("usdtAddress") as string,
+          btcAddress: form.get("btcAddress") as string,
+          bnbAddress: form.get("bnbAddress") as string,
+        });
+        if (result.success) { router.push("/dashboard"); router.refresh(); }
+        else setError(result.error);
+      } catch {
+        setError("Something went wrong. Please try again.");
+      }
     });
   }
 

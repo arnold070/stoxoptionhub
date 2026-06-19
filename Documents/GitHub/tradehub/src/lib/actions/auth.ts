@@ -53,36 +53,43 @@ export async function registerUser(data: {
 
   const { email, password, name, usdtAddress, btcAddress, bnbAddress } = parsed.data;
 
-  const existing = await prisma.user.findUnique({ where: { email } });
-  if (existing) {
-    return { success: false, error: "Email already registered" };
+  try {
+    const existing = await prisma.user.findUnique({ where: { email } });
+    if (existing) {
+      return { success: false, error: "Email already registered" };
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 12);
+
+    const user = await prisma.user.create({
+      data: {
+        email,
+        password: hashedPassword,
+        name,
+        usdtAddress: usdtAddress?.trim() || null,
+        btcAddress: btcAddress?.trim() || null,
+        bnbAddress: bnbAddress?.trim() || null,
+      },
+    });
+
+    await prisma.wallet.create({ data: { userId: user.id } });
+
+    const token = await createSession({
+      userId: user.id,
+      email: user.email,
+      role: user.role,
+      name: user.name,
+    });
+
+    await setSessionCookie(token);
+
+    return { success: true, token };
+  } catch (e: unknown) {
+    console.error("[registerUser]", e);
+    const code = (e as { code?: string })?.code;
+    if (code === "P2002") return { success: false, error: "Email already registered" };
+    return { success: false, error: "Registration failed. Please try again." };
   }
-
-  const hashedPassword = await bcrypt.hash(password, 12);
-
-  const user = await prisma.user.create({
-    data: {
-      email,
-      password: hashedPassword,
-      name,
-      usdtAddress: usdtAddress?.trim() || null,
-      btcAddress: btcAddress?.trim() || null,
-      bnbAddress: bnbAddress?.trim() || null,
-    },
-  });
-
-  await prisma.wallet.create({ data: { userId: user.id } });
-
-  const token = await createSession({
-    userId: user.id,
-    email: user.email,
-    role: user.role,
-    name: user.name,
-  });
-
-  await setSessionCookie(token);
-
-  return { success: true, token };
 }
 
 export async function loginUser(data: {
