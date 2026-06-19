@@ -23,6 +23,8 @@ const PUBLIC_PATHS = [
   "/api/auth/login",
   "/api/auth/register",
   "/api/cron/",
+  "/api/market",
+  "/sitemap.xml",
 ];
 const ADMIN_PATHS = ["/admin"];
 
