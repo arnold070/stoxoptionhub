@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "@/lib/actions/auth";
 import { getInvestmentPlans, getMyInvestments, purchaseInvestment } from "@/lib/actions/investments";
 import { getWallet } from "@/lib/actions/wallet";
@@ -70,6 +71,8 @@ export default async function InvestmentsPage() {
                     planId: fd.get("planId") as string,
                     amount: parseFloat(fd.get("amount") as string),
                   });
+                  revalidatePath("/investments");
+                  revalidatePath("/wallet");
                 }}
                 className="bg-[#111] border border-[#1e1e1e] rounded-xl p-5 flex flex-col hover:border-[#2a2a2a] transition-colors"
               >

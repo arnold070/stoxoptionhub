@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "@/lib/actions/auth";
 import {
   getEnhancedPlatformStats,
@@ -177,10 +178,10 @@ export default async function AdminPage() {
                         <td className="p-4 text-[#555]">{formatDate(tx.createdAt)}</td>
                         <td className="p-4">
                           <div className="flex gap-2">
-                            <form action={async () => { "use server"; await approveTransaction(tx.id); }}>
+                            <form action={async () => { "use server"; await approveTransaction(tx.id); revalidatePath("/admin"); }}>
                               <button type="submit" className="px-3 py-1 bg-[#22c55e]/10 text-[#22c55e] text-[11px] font-bold uppercase tracking-wide rounded-lg hover:bg-[#22c55e]/20 transition-colors">Approve</button>
                             </form>
-                            <form action={async () => { "use server"; await rejectTransaction(tx.id); }}>
+                            <form action={async () => { "use server"; await rejectTransaction(tx.id); revalidatePath("/admin"); }}>
                               <button type="submit" className="px-3 py-1 bg-[#ef4444]/10 text-[#ef4444] text-[11px] font-bold uppercase tracking-wide rounded-lg hover:bg-[#ef4444]/20 transition-colors">Reject</button>
                             </form>
                           </div>

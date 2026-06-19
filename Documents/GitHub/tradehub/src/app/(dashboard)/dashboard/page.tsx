@@ -53,10 +53,10 @@ export default async function DashboardPage() {
   const balance = wallet?.balance ?? 0;
 
   const topStats = [
-    { label: "Total Portfolio", value: formatCurrency(balance + totalAllocated), sub: "+12.4%", subCls: "text-[#22c55e]", valueCls: "text-white" },
-    { label: "Available", value: formatCurrency(balance), sub: `${allocations.length} active pairs`, subCls: "text-[#888]", valueCls: "text-white" },
+    { label: "Total Portfolio", value: formatCurrency(balance + totalAllocated), sub: "Available + Allocated", subCls: "text-[#888]", valueCls: "text-white" },
+    { label: "Available", value: formatCurrency(balance), sub: "Ready to deploy", subCls: "text-[#888]", valueCls: "text-white" },
     { label: "Status", value: activeMembership?.plan.name ?? "Free", sub: "Active Plan", subCls: "text-[#888]", valueCls: "text-[#f0b429]" },
-    { label: "30D Profit", value: formatCurrency(totalAllocated * 0.14), sub: "Net Earnings", subCls: "text-[#888]", valueCls: "text-[#22c55e]" },
+    { label: "Allocated", value: formatCurrency(totalAllocated), sub: `${allocations.length} active ${allocations.length === 1 ? "strategy" : "strategies"}`, subCls: "text-[#888]", valueCls: "text-[#22c55e]" },
     { label: "Main Strategy", value: allocations[0]?.strategy.name ?? "—", sub: allocations[0]?.strategy.tier.toLowerCase() ?? "none", subCls: "text-[#888]", valueCls: "text-white" },
   ];
 

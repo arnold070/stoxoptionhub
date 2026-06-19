@@ -45,33 +45,46 @@ export async function purchaseMembership({ planId }: { planId: string }): Promis
     ? new Date(now.getTime() + plan.duration * 24 * 60 * 60 * 1000)
     : null;
 
-  await prisma.membership.create({
-    data: {
-      userId: session.userId,
-      planId,
-      status: "ACTIVE",
-      startDate: now,
-      endDate,
-      paidAt: now,
-      amount: plan.price,
-    },
-  });
+  try {
+    await prisma.$transaction(async (tx) => {
+      const w = await tx.wallet.findUnique({ where: { userId: session.userId } });
+      if (!w || w.balance < plan.price) throw new Error("INSUFFICIENT_BALANCE");
 
-  await prisma.wallet.update({
-    where: { id: wallet.id },
-    data: { balance: { decrement: plan.price } },
-  });
+      await tx.membership.create({
+        data: {
+          userId: session.userId,
+          planId,
+          status: "ACTIVE",
+          startDate: now,
+          endDate,
+          paidAt: now,
+          amount: plan.price,
+        },
+      });
 
-  await prisma.transaction.create({
-    data: {
-      walletId: wallet.id,
-      userId: session.userId,
-      type: "WITHDRAWAL",
-      amount: plan.price,
-      status: "COMPLETED",
-      description: `Membership: ${plan.name}`,
-    },
-  });
+      await tx.wallet.update({
+        where: { id: w.id },
+        data: { balance: { decrement: plan.price } },
+      });
+
+      await tx.transaction.create({
+        data: {
+          walletId: w.id,
+          userId: session.userId,
+          type: "WITHDRAWAL",
+          amount: plan.price,
+          status: "COMPLETED",
+          description: `Membership: ${plan.name}`,
+        },
+      });
+    });
+  } catch (e: unknown) {
+    if ((e as Error).message === "INSUFFICIENT_BALANCE") {
+      return { success: false, error: "Insufficient wallet balance" };
+    }
+    console.error("[purchaseMembership]", e);
+    return { success: false, error: "Purchase failed. Please try again." };
+  }
 
   return { success: true };
 }

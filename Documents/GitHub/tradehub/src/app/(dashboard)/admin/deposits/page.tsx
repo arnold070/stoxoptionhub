@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "@/lib/actions/auth";
 import { getDepositRequests, approveTransaction, rejectTransaction } from "@/lib/actions/admin";
 import { formatCurrency, formatDate } from "@/lib/utils";
@@ -100,12 +101,12 @@ export default async function AdminDepositsPage({
                   <td className="p-4">
                     {dep.status === "PENDING" && (
                       <div className="flex gap-2">
-                        <form action={async () => { "use server"; await approveTransaction(dep.id); }}>
+                        <form action={async () => { "use server"; await approveTransaction(dep.id); revalidatePath("/admin/deposits"); revalidatePath("/admin"); }}>
                           <button type="submit" className="px-3 py-1 bg-[#22c55e]/10 hover:bg-[#22c55e]/20 text-[#22c55e] text-[11px] font-bold rounded-lg transition-colors border border-[#22c55e]/20">
                             Approve
                           </button>
                         </form>
-                        <form action={async () => { "use server"; await rejectTransaction(dep.id); }}>
+                        <form action={async () => { "use server"; await rejectTransaction(dep.id); revalidatePath("/admin/deposits"); revalidatePath("/admin"); }}>
                           <button type="submit" className="px-3 py-1 bg-[#ef4444]/10 hover:bg-[#ef4444]/20 text-[#ef4444] text-[11px] font-bold rounded-lg transition-colors border border-[#ef4444]/20">
                             Reject
                           </button>

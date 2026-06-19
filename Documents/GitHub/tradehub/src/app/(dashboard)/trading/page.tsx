@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "@/lib/actions/auth";
 import { getStrategies, getUserAllocations, allocateToStrategy, withdrawFromStrategy } from "@/lib/actions/copy-trading";
 import { formatCurrency } from "@/lib/utils";
@@ -75,7 +76,7 @@ export default async function CopyTradingPage() {
                   </div>
                   <p className="text-[22px] font-bold text-white mb-1">{formatCurrency(alloc.amount)}</p>
                   <p className="text-[11px] text-[#22c55e] mb-4">+{alloc.strategy.performance}% ROI (30D)</p>
-                  <form action={async () => { "use server"; await withdrawFromStrategy({ allocationId: alloc.id }); }}>
+                  <form action={async () => { "use server"; await withdrawFromStrategy({ allocationId: alloc.id }); revalidatePath("/trading"); revalidatePath("/wallet"); }}>
                     <button type="submit" className="w-full py-2 text-[12px] font-semibold text-[#ef4444] border border-[#ef4444]/30 rounded-lg hover:bg-[#ef4444]/10 transition-colors">
                       Withdraw
                     </button>
@@ -163,6 +164,8 @@ export default async function CopyTradingPage() {
                 <form action={async (fd: FormData) => {
                   "use server";
                   await allocateToStrategy({ strategyId: strategy.id, amount: parseFloat(fd.get("amount") as string) });
+                  revalidatePath("/trading");
+                  revalidatePath("/wallet");
                 }}>
                   <div className="flex gap-2">
                     <input

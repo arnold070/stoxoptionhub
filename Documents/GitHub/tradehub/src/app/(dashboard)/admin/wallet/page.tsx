@@ -142,6 +142,7 @@ export default async function AdminWalletPage({
                 <form action={async (fd: FormData) => {
                   "use server";
                   await adminCreditWallet(u.id, Number(fd.get("amount")), fd.get("description") as string);
+                  revalidatePath("/admin/wallet");
                 }} className="space-y-2">
                   <p className="text-[10px] text-[#22c55e] uppercase tracking-wider font-bold flex items-center gap-1"><PlusCircle size={11} /> Credit Wallet</p>
                   <input name="amount" type="number" min="0.01" step="0.01" required placeholder="Amount (USD)" className="w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-3 py-2 text-[13px] text-white placeholder-[#444] outline-none focus:border-[#22c55e]/50" />
@@ -153,6 +154,7 @@ export default async function AdminWalletPage({
                 <form action={async (fd: FormData) => {
                   "use server";
                   await adminDebitWallet(u.id, Number(fd.get("amount")), fd.get("description") as string);
+                  revalidatePath("/admin/wallet");
                 }} className="space-y-2">
                   <p className="text-[10px] text-[#ef4444] uppercase tracking-wider font-bold flex items-center gap-1"><MinusCircle size={11} /> Debit Wallet</p>
                   <input name="amount" type="number" min="0.01" step="0.01" required placeholder="Amount (USD)" className="w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-3 py-2 text-[13px] text-white placeholder-[#444] outline-none focus:border-[#ef4444]/50" />
@@ -164,13 +166,13 @@ export default async function AdminWalletPage({
                 <div className="space-y-2">
                   <p className="text-[10px] text-[#888] uppercase tracking-wider font-bold flex items-center gap-1"><Lock size={11} /> Account Controls</p>
                   {u.isSuspended ? (
-                    <form action={async () => { "use server"; await adminUnfreezeUser(u.id); }}>
+                    <form action={async () => { "use server"; await adminUnfreezeUser(u.id); revalidatePath("/admin/wallet"); }}>
                       <button type="submit" className="w-full py-1.5 bg-[#22c55e]/10 text-[#22c55e] border border-[#22c55e]/20 hover:bg-[#22c55e]/20 rounded-lg text-[12px] font-bold transition-colors flex items-center justify-center gap-1.5">
                         <Unlock size={12} /> Unfreeze Account
                       </button>
                     </form>
                   ) : (
-                    <form action={async () => { "use server"; await adminFreezeUser(u.id); }}>
+                    <form action={async () => { "use server"; await adminFreezeUser(u.id); revalidatePath("/admin/wallet"); }}>
                       <button type="submit" className="w-full py-1.5 bg-[#ef4444]/10 text-[#ef4444] border border-[#ef4444]/20 hover:bg-[#ef4444]/20 rounded-lg text-[12px] font-bold transition-colors flex items-center justify-center gap-1.5">
                         <Lock size={12} /> Freeze Account
                       </button>

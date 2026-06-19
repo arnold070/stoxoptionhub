@@ -51,35 +51,43 @@ export async function allocateToStrategy({
     };
   }
 
-  const wallet = await prisma.wallet.findUnique({ where: { userId: session.userId } });
-  if (!wallet || wallet.balance < amount) {
-    return { success: false, error: "Insufficient wallet balance" };
+  try {
+    await prisma.$transaction(async (tx) => {
+      const wallet = await tx.wallet.findUnique({ where: { userId: session.userId } });
+      if (!wallet || wallet.balance < amount) throw new Error("INSUFFICIENT_BALANCE");
+
+      await tx.allocation.create({
+        data: {
+          userId: session.userId,
+          strategyId,
+          amount,
+          status: "ACTIVE",
+        },
+      });
+
+      await tx.wallet.update({
+        where: { id: wallet.id },
+        data: { balance: { decrement: amount } },
+      });
+
+      await tx.transaction.create({
+        data: {
+          walletId: wallet.id,
+          userId: session.userId,
+          type: "ALLOCATION_OUT",
+          amount,
+          status: "COMPLETED",
+          description: `Allocated to ${strategy.name}`,
+        },
+      });
+    });
+  } catch (e: unknown) {
+    if ((e as Error).message === "INSUFFICIENT_BALANCE") {
+      return { success: false, error: "Insufficient wallet balance" };
+    }
+    console.error("[allocateToStrategy]", e);
+    return { success: false, error: "Allocation failed. Please try again." };
   }
-
-  await prisma.allocation.create({
-    data: {
-      userId: session.userId,
-      strategyId,
-      amount,
-      status: "ACTIVE",
-    },
-  });
-
-  await prisma.wallet.update({
-    where: { id: wallet.id },
-    data: { balance: { decrement: amount } },
-  });
-
-  await prisma.transaction.create({
-    data: {
-      walletId: wallet.id,
-      userId: session.userId,
-      type: "ALLOCATION_OUT",
-      amount,
-      status: "COMPLETED",
-      description: `Allocated to ${strategy.name}`,
-    },
-  });
 
   return { success: true };
 }
@@ -99,29 +107,39 @@ export async function withdrawFromStrategy({
 
   if (!allocation) return { success: false, error: "Allocation not found" };
 
-  const wallet = await prisma.wallet.findUnique({ where: { userId: session.userId } });
-  if (!wallet) return { success: false, error: "Wallet not found" };
+  try {
+    await prisma.$transaction(async (tx) => {
+      const wallet = await tx.wallet.findUnique({ where: { userId: session.userId } });
+      if (!wallet) throw new Error("WALLET_NOT_FOUND");
 
-  await prisma.allocation.update({
-    where: { id: allocationId },
-    data: { status: "WITHDRAWN" },
-  });
+      await tx.allocation.update({
+        where: { id: allocationId },
+        data: { status: "WITHDRAWN" },
+      });
 
-  await prisma.wallet.update({
-    where: { id: wallet.id },
-    data: { balance: { increment: allocation.amount } },
-  });
+      await tx.wallet.update({
+        where: { id: wallet.id },
+        data: { balance: { increment: allocation.amount } },
+      });
 
-  await prisma.transaction.create({
-    data: {
-      walletId: wallet.id,
-      userId: session.userId,
-      type: "ALLOCATION_IN",
-      amount: allocation.amount,
-      status: "COMPLETED",
-      description: `Withdrew from ${(allocation as any).strategy.name}`,
-    },
-  });
+      await tx.transaction.create({
+        data: {
+          walletId: wallet.id,
+          userId: session.userId,
+          type: "ALLOCATION_IN",
+          amount: allocation.amount,
+          status: "COMPLETED",
+          description: `Withdrew from ${(allocation as any).strategy.name}`,
+        },
+      });
+    });
+  } catch (e: unknown) {
+    if ((e as Error).message === "WALLET_NOT_FOUND") {
+      return { success: false, error: "Wallet not found" };
+    }
+    console.error("[withdrawFromStrategy]", e);
+    return { success: false, error: "Withdrawal failed. Please try again." };
+  }
 
   return { success: true };
 }

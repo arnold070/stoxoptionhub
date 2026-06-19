@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "@/lib/actions/auth";
 import { getPlans, getUserMemberships, purchaseMembership, cancelMembership } from "@/lib/actions/memberships";
 import { formatCurrency, formatDate } from "@/lib/utils";
@@ -43,7 +44,7 @@ export default async function MembershipsPage() {
                 </div>
               )}
             </div>
-            <form action={async () => { "use server"; await cancelMembership({ membershipId: activeMembership.id }); }}>
+            <form action={async () => { "use server"; await cancelMembership({ membershipId: activeMembership.id }); revalidatePath("/memberships"); }}>
               <button type="submit" className="ml-4 text-[11px] text-[#ef4444]/70 hover:text-[#ef4444] transition-colors">
                 Cancel
               </button>
@@ -87,7 +88,7 @@ export default async function MembershipsPage() {
               </ul>
 
               {!isCurrent && (
-                <form action={async () => { "use server"; await purchaseMembership({ planId: plan.id }); }}>
+                <form action={async () => { "use server"; await purchaseMembership({ planId: plan.id }); revalidatePath("/memberships"); revalidatePath("/wallet"); }}>
                   <button type="submit" className={`w-full py-2.5 rounded-lg text-[13px] font-bold uppercase tracking-wide transition-colors ${accent.btn}`}>
                     Get {plan.name}
                   </button>

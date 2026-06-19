@@ -10,11 +10,6 @@ const MIN_WITHDRAWAL = 20;
 
 type ActionResult = { success: true } | { success: false; error: string };
 
-const DEPOSIT_ADDRESSES = {
-  ETH: { address: "0xYourEthAddressHere", label: "Ethereum (ERC-20)" },
-  BSC: { address: "0xYourBscAddressHere", label: "BNB Smart Chain (BEP-20)" },
-  TRX: { address: "TYourTronAddressHere", label: "TRON (TRC-20)" },
-} as const;
 
 export async function getWallet() {
   const session = await getSession();
@@ -148,10 +143,6 @@ export async function requestWithdrawal({
   if (reserved === "insufficient") return { success: false, error: "Insufficient wallet balance" };
 
   return { success: true };
-}
-
-export async function getDepositAddresses() {
-  return DEPOSIT_ADDRESSES;
 }
 
 export async function getWalletStats() {
