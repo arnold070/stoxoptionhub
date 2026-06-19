@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "@/lib/actions/auth";
 import { getPlans, createPlan, updatePlan, deletePlan } from "@/lib/actions/admin";
 import { formatCurrency, formatDate } from "@/lib/utils";
@@ -38,6 +39,7 @@ export default async function AdminPlansPage() {
               maxMembers,
               sortOrder: fd.get("sortOrder") ? Number(fd.get("sortOrder")) : 0,
             });
+            revalidatePath("/admin/plans");
           }} className="space-y-3">
             <div>
               <label className="text-[11px] text-[#666] uppercase tracking-wider block mb-1">Plan Name *</label>
@@ -105,7 +107,7 @@ export default async function AdminPlansPage() {
                 {plan.duration ? `${plan.duration} days` : "Lifetime"} · {plan.maxMembers ? `Max ${plan.maxMembers}` : "Unlimited seats"} · Order {plan.sortOrder}
               </p>
               <div className="flex gap-2">
-                <form action={async () => { "use server"; await updatePlan(plan.id, { isActive: !plan.isActive }); }}>
+                <form action={async () => { "use server"; await updatePlan(plan.id, { isActive: !plan.isActive }); revalidatePath("/admin/plans"); }}>
                   <button type="submit" className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-[11px] font-bold transition-colors ${
                     plan.isActive
                       ? "bg-[#ef4444]/10 text-[#ef4444] hover:bg-[#ef4444]/20"
@@ -114,7 +116,7 @@ export default async function AdminPlansPage() {
                     {plan.isActive ? <><XCircle size={12} /> Deactivate</> : <><CheckCircle size={12} /> Activate</>}
                   </button>
                 </form>
-                <form action={async () => { "use server"; await deletePlan(plan.id); }}>
+                <form action={async () => { "use server"; await deletePlan(plan.id); revalidatePath("/admin/plans"); }}>
                   <button type="submit" className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-[11px] font-bold bg-[#1a1a1a] text-[#666] hover:text-[#ef4444] transition-colors">
                     <Trash2 size={12} /> Delete
                   </button>

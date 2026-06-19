@@ -5,10 +5,16 @@ import { formatCurrency, formatDate } from "@/lib/utils";
 import { CheckCircle, Zap } from "lucide-react";
 
 const PLAN_ACCENTS: Record<string, { border: string; badge: string; btn: string }> = {
-  Starter:    { border: "border-[#2a2a2a]",       badge: "bg-[#1e1e1e] text-[#888]",        btn: "bg-[#1e1e1e] hover:bg-[#2a2a2a] text-white border border-[#2a2a2a]" },
-  "Pro Trader": { border: "border-[#f0b429]/40",  badge: "bg-[#f0b429]/10 text-[#f0b429]",  btn: "bg-[#f0b429] hover:bg-[#e0a424] text-black" },
-  Elite:      { border: "border-[#818cf8]/40",    badge: "bg-[#818cf8]/10 text-[#818cf8]",  btn: "bg-[#818cf8] hover:bg-[#6366f1] text-white" },
+  "Beginner Track":     { border: "border-[#22c55e]/30",  badge: "bg-[#22c55e]/10 text-[#22c55e]", btn: "bg-[#1e1e1e] hover:bg-[#2a2a2a] text-white border border-[#2a2a2a]" },
+  "Intermediate Track": { border: "border-[#f0b429]/40",  badge: "bg-[#f0b429]/10 text-[#f0b429]", btn: "bg-[#f0b429] hover:bg-[#e0a424] text-black" },
+  "Advanced Track":     { border: "border-[#ef4444]/30",  badge: "bg-[#ef4444]/10 text-[#ef4444]", btn: "bg-[#818cf8] hover:bg-[#6366f1] text-white" },
 };
+const DEFAULT_ACCENT = { border: "border-[#2a2a2a]", badge: "bg-[#1e1e1e] text-[#888]", btn: "bg-[#1e1e1e] hover:bg-[#2a2a2a] text-white border border-[#2a2a2a]" };
+
+function parseBenefits(raw: string): string[] {
+  try { const p = JSON.parse(raw); if (Array.isArray(p)) return p; } catch { /* fallthrough */ }
+  return raw.split(",").map((s) => s.trim()).filter(Boolean);
+}
 
 export default async function MembershipsPage() {
   const user = await getCurrentUser();
@@ -50,8 +56,8 @@ export default async function MembershipsPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {plans.map((plan) => {
           const isCurrent = activeMembership && (activeMembership as any).planId === plan.id;
-          const benefits: string[] = JSON.parse(plan.benefits);
-          const accent = PLAN_ACCENTS[plan.name] ?? PLAN_ACCENTS["Starter"];
+          const benefits = parseBenefits(plan.benefits);
+          const accent = PLAN_ACCENTS[plan.name] ?? DEFAULT_ACCENT;
 
           return (
             <div key={plan.id} className={`bg-[#111] border ${accent.border} rounded-xl p-6 flex flex-col`}>
@@ -64,7 +70,11 @@ export default async function MembershipsPage() {
               <p className="text-[12px] text-[#555] mb-4">{plan.description}</p>
               <div className="mb-5">
                 <span className="text-[32px] font-bold text-white">{formatCurrency(plan.price)}</span>
-                {plan.duration && <span className="text-[13px] text-[#555]">/{plan.duration}d</span>}
+                {plan.duration && (
+                  <span className="text-[13px] text-[#555] ml-1">
+                    / {Math.round(plan.duration / 7)} weeks
+                  </span>
+                )}
               </div>
 
               <ul className="space-y-2.5 flex-1 mb-6">
