@@ -1,28 +1,14 @@
 import { NextResponse } from "next/server";
 
-// ─── Binance public REST API — no key required ────────────────────────────────
+// ─── CryptoCompare public API — no key, no geo-block ────────────────────────
+const SYMS = "BTC,ETH,SOL,BNB,ADA,AVAX,DOT,MATIC,LINK,XRP,DOGE,LTC";
 
-const PAIRS = [
-  "BTCUSDT", "ETHUSDT", "SOLUSDT", "BNBUSDT",
-  "ADAUSDT", "AVAXUSDT", "DOTUSDT", "MATICUSDT",
-  "LINKUSDT", "XRPUSDT", "DOGEUSDT", "LTCUSDT",
-];
+const SPARK_SYMS = ["BTC", "ETH", "SOL", "BNB"];
 
-const SPARKLINE_PAIRS = ["BTCUSDT", "ETHUSDT", "SOLUSDT", "BNBUSDT"];
-
-const META: Record<string, { name: string }> = {
-  BTCUSDT:   { name: "Bitcoin" },
-  ETHUSDT:   { name: "Ethereum" },
-  SOLUSDT:   { name: "Solana" },
-  BNBUSDT:   { name: "BNB" },
-  ADAUSDT:   { name: "Cardano" },
-  AVAXUSDT:  { name: "Avalanche" },
-  DOTUSDT:   { name: "Polkadot" },
-  MATICUSDT: { name: "Polygon" },
-  LINKUSDT:  { name: "Chainlink" },
-  XRPUSDT:   { name: "XRP" },
-  DOGEUSDT:  { name: "Dogecoin" },
-  LTCUSDT:   { name: "Litecoin" },
+const NAMES: Record<string, string> = {
+  BTC: "Bitcoin", ETH: "Ethereum", SOL: "Solana", BNB: "BNB",
+  ADA: "Cardano", AVAX: "Avalanche", DOT: "Polkadot", MATIC: "Polygon",
+  LINK: "Chainlink", XRP: "XRP", DOGE: "Dogecoin", LTC: "Litecoin",
 };
 
 export interface MarketCoin {
@@ -34,66 +20,62 @@ export interface MarketCoin {
   high24h: number;
   low24h: number;
   volume24h: number;
+  marketCap?: number;
   sparkline: number[];
 }
 
 export async function GET() {
   try {
-    const symbolsJson = encodeURIComponent(JSON.stringify(PAIRS));
-
-    // Parallel: 24 h tickers + 4h klines for sparklines
-    const [tickerRes, ...klinesResults] = await Promise.all([
+    // Main prices + 4 sparkline history calls in parallel
+    const [priceRes, ...sparkRes] = await Promise.all([
       fetch(
-        `https://api.binance.com/api/v3/ticker/24hr?symbols=${symbolsJson}`,
-        { next: { revalidate: 30 } }
+        `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=${SYMS}&tsyms=USD`,
+        { next: { revalidate: 30 }, headers: { Accept: "application/json" } }
       ),
-      ...SPARKLINE_PAIRS.map((sym) =>
+      ...SPARK_SYMS.map((sym) =>
         fetch(
-          `https://api.binance.com/api/v3/klines?symbol=${sym}&interval=4h&limit=14`,
+          `https://min-api.cryptocompare.com/data/v2/histohour?fsym=${sym}&tsym=USD&limit=13`,
           { next: { revalidate: 3600 } }
         )
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          .then((r) => (r.ok ? (r.json() as Promise<any[]>) : Promise.resolve([])))
-          .catch(() => [] as unknown[])
+          .then((r) => (r.ok ? (r.json() as Promise<any>) : null))
+          .catch(() => null)
       ),
     ]);
 
-    if (!tickerRes.ok) throw new Error(`Binance ticker ${tickerRes.status}`);
+    if (!priceRes.ok) throw new Error(`CryptoCompare ${priceRes.status}`);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const tickers: any[] = await tickerRes.json();
+    const priceJson: any = await priceRes.json();
+    const raw = priceJson?.RAW ?? {};
 
-    // sparkline map: pair → close prices
+    // Build sparkline map: symbol → close prices
     const sparkMap: Record<string, number[]> = {};
-    SPARKLINE_PAIRS.forEach((sym, i) => {
+    SPARK_SYMS.forEach((sym, i) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const klines = klinesResults[i] as any[];
-      if (Array.isArray(klines) && klines.length > 0) {
-        sparkMap[sym] = klines.map((k) => parseFloat(k[4])); // index 4 = close
+      const hist = sparkRes[i]?.Data?.Data as any[] | undefined;
+      if (Array.isArray(hist) && hist.length > 0) {
+        sparkMap[sym] = hist.map((h) => h.close as number);
       }
     });
 
-    const data: MarketCoin[] = tickers.map((t) => {
-      const symbol = (t.symbol as string).replace("USDT", "");
-      const price = parseFloat(t.lastPrice);
-      const open = parseFloat(t.openPrice);
-      const change24h = open > 0 ? ((price - open) / open) * 100 : 0;
+    const data: MarketCoin[] = SYMS.split(",").map((sym) => {
+      const d = raw[sym]?.USD ?? {};
       return {
-        id: symbol.toLowerCase(),
-        symbol,
-        name: META[t.symbol]?.name ?? symbol,
-        price,
-        change24h,
-        high24h: parseFloat(t.highPrice),
-        low24h: parseFloat(t.lowPrice),
-        volume24h: parseFloat(t.quoteVolume),
-        sparkline: sparkMap[t.symbol] ?? [],
+        id: sym.toLowerCase(),
+        symbol: sym,
+        name: NAMES[sym] ?? sym,
+        price: d.PRICE ?? 0,
+        change24h: d.CHANGEPCT24HOUR ?? 0,
+        high24h: d.HIGH24HOUR ?? 0,
+        low24h: d.LOW24HOUR ?? 0,
+        volume24h: d.TOTALVOLUME24HTO ?? 0,
+        marketCap: d.MKTCAP ?? 0,
+        sparkline: sparkMap[sym] ?? [],
       };
     });
 
     return NextResponse.json(data, {
-      headers: {
-        "Cache-Control": "public, s-maxage=30, stale-while-revalidate=60",
-      },
+      headers: { "Cache-Control": "public, s-maxage=30, stale-while-revalidate=60" },
     });
   } catch (err) {
     console.error("[market]", err);

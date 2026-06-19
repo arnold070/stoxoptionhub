@@ -3,24 +3,32 @@
 import { useEffect, useRef, useState } from "react";
 import type { MarketCoin } from "@/app/api/market/route";
 
-// ── Binance combined mini-ticker WebSocket ─────────────────────────────────
-const WS_SYMBOLS = [
-  "btcusdt","ethusdt","solusdt","bnbusdt","adausdt",
-  "avaxusdt","dotusdt","maticusdt","linkusdt","xrpusdt","dogeusdt","ltcusdt",
-];
-const WS_URL =
-  "wss://stream.binance.com:9443/stream?streams=" +
-  WS_SYMBOLS.map((s) => `${s}@miniTicker`).join("/");
+// ── CoinCap WebSocket — free, global, no geo-block ──────────────────────────
+const COINCAP_ASSETS =
+  "bitcoin,ethereum,solana,binance-coin,cardano,avalanche,polkadot," +
+  "matic-network,chainlink,xrp,dogecoin,litecoin";
+const WS_URL = `wss://ws.coincap.io/prices?assets=${COINCAP_ASSETS}`;
+
+// Map CoinCap asset IDs → display symbols
+const ASSET_TO_SYM: Record<string, string> = {
+  bitcoin: "BTC",
+  ethereum: "ETH",
+  solana: "SOL",
+  "binance-coin": "BNB",
+  cardano: "ADA",
+  avalanche: "AVAX",
+  polkadot: "DOT",
+  "matic-network": "MATIC",
+  chainlink: "LINK",
+  xrp: "XRP",
+  dogecoin: "DOGE",
+  litecoin: "LTC",
+};
 
 const DISPLAY_ORDER = [
-  "BTC","ETH","SOL","BNB","ADA","AVAX","DOT","MATIC","LINK","XRP","DOGE","LTC",
+  "BTC", "ETH", "SOL", "BNB", "ADA", "AVAX",
+  "DOT", "MATIC", "LINK", "XRP", "DOGE", "LTC",
 ];
-
-const NAMES: Record<string, string> = {
-  BTC:"Bitcoin", ETH:"Ethereum", SOL:"Solana", BNB:"BNB",
-  ADA:"Cardano", AVAX:"Avalanche", DOT:"Polkadot", MATIC:"Polygon",
-  LINK:"Chainlink", XRP:"XRP", DOGE:"Dogecoin", LTC:"Litecoin",
-};
 
 type CoinState = { symbol: string; price: number; change24h: number };
 
@@ -41,11 +49,10 @@ export default function MarketTicker() {
   const wsRef = useRef<WebSocket | null>(null);
   const retryMs = useRef(1_000);
   const alive = useRef(true);
-  // Track previous prices for flash colour
   const prevPrices = useRef<Record<string, number>>({});
   const [flashing, setFlashing] = useState<Record<string, "up" | "dn">>({});
 
-  // ── Seed prices from REST on first load ──────────────────────────────────
+  // ── Seed from REST on first load ─────────────────────────────────────────
   useEffect(() => {
     fetch("/api/market")
       .then((r) => (r.ok ? (r.json() as Promise<MarketCoin[]>) : null))
@@ -54,6 +61,7 @@ export default function MarketTicker() {
         setCoins(
           DISPLAY_ORDER.map((sym) => {
             const d = data.find((c) => c.symbol === sym);
+            if (d?.price) prevPrices.current[sym] = d.price;
             return { symbol: sym, price: d?.price ?? 0, change24h: d?.change24h ?? 0 };
           })
         );
@@ -61,12 +69,13 @@ export default function MarketTicker() {
       .catch(() => {});
   }, []);
 
-  // ── WebSocket for live price stream ──────────────────────────────────────
+  // ── CoinCap WebSocket for live streaming ─────────────────────────────────
   useEffect(() => {
     alive.current = true;
 
     function connect() {
       if (!alive.current) return;
+      setStatus("connecting");
       const ws = new WebSocket(WS_URL);
       wsRef.current = ws;
 
@@ -77,30 +86,35 @@ export default function MarketTicker() {
 
       ws.onmessage = (evt) => {
         try {
-          const msg = JSON.parse(evt.data as string);
-          const d = msg.data;
-          if (!d || d.e !== "24hrMiniTicker") return;
+          const msg = JSON.parse(evt.data as string) as Record<string, string>;
+          const updates: Partial<Record<string, { price: number }>> = {};
 
-          const symbol = (d.s as string).replace("USDT", "");
-          const price = parseFloat(d.c);
-          const open = parseFloat(d.o);
-          const change24h = open > 0 ? ((price - open) / open) * 100 : 0;
+          for (const [assetId, priceStr] of Object.entries(msg)) {
+            const sym = ASSET_TO_SYM[assetId];
+            if (!sym) continue;
+            const price = parseFloat(priceStr);
+            if (!price || isNaN(price)) continue;
 
-          // Determine flash direction
-          const prev = prevPrices.current[symbol] ?? 0;
-          if (prev && price !== prev) {
-            const dir = price > prev ? "up" : "dn";
-            setFlashing((f) => ({ ...f, [symbol]: dir }));
-            setTimeout(
-              () => setFlashing((f) => { const n = { ...f }; delete n[symbol]; return n; }),
-              600
+            const prev = prevPrices.current[sym] ?? 0;
+            if (prev && price !== prev) {
+              const dir = price > prev ? "up" : "dn";
+              setFlashing((f) => ({ ...f, [sym]: dir }));
+              setTimeout(
+                () => setFlashing((f) => { const n = { ...f }; delete n[sym]; return n; }),
+                600
+              );
+            }
+            prevPrices.current[sym] = price;
+            updates[sym] = { price };
+          }
+
+          if (Object.keys(updates).length > 0) {
+            setCoins((prev) =>
+              prev.map((c) =>
+                updates[c.symbol] ? { ...c, price: updates[c.symbol]!.price } : c
+              )
             );
           }
-          prevPrices.current[symbol] = price;
-
-          setCoins((prev) =>
-            prev.map((c) => (c.symbol === symbol ? { ...c, price, change24h } : c))
-          );
         } catch {
           // ignore parse errors
         }
@@ -126,12 +140,12 @@ export default function MarketTicker() {
     };
   }, []);
 
-  const items = [...coins, ...coins]; // doubled for seamless loop
+  const items = [...coins, ...coins];
 
   return (
     <div className="bg-[#0d0d0d] border-b border-[#1a1a1a] overflow-hidden">
       <div className="flex items-center">
-        {/* Label */}
+        {/* Status label */}
         <div className="shrink-0 flex items-center gap-2 px-4 py-2.5 bg-[#111] border-r border-[#1a1a1a] z-10">
           <span
             className={`w-1.5 h-1.5 rounded-full shrink-0 transition-colors ${
