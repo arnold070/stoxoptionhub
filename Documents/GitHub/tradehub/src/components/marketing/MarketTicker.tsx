@@ -3,26 +3,21 @@
 import { useEffect, useRef, useState } from "react";
 import type { MarketCoin } from "@/app/api/market/route";
 
-// ── CoinCap WebSocket — free, global, no geo-block ──────────────────────────
-const COINCAP_ASSETS =
-  "bitcoin,ethereum,solana,binance-coin,cardano,avalanche,polkadot," +
-  "matic-network,chainlink,xrp,dogecoin,litecoin";
-const WS_URL = `wss://ws.coincap.io/prices?assets=${COINCAP_ASSETS}`;
+// ── Binance combined mini-ticker WebSocket on port 443 (firewall-safe) ────────
+const WS_SYMS = [
+  "btcusdt", "ethusdt", "solusdt", "bnbusdt", "adausdt",
+  "avaxusdt", "dotusdt", "maticusdt", "linkusdt", "xrpusdt",
+  "dogeusdt", "ltcusdt",
+];
+const WS_URL =
+  "wss://stream.binance.com:443/stream?streams=" +
+  WS_SYMS.map((s) => `${s}@miniTicker`).join("/");
 
-// Map CoinCap asset IDs → display symbols
+// Map Binance symbol → display symbol
 const ASSET_TO_SYM: Record<string, string> = {
-  bitcoin: "BTC",
-  ethereum: "ETH",
-  solana: "SOL",
-  "binance-coin": "BNB",
-  cardano: "ADA",
-  avalanche: "AVAX",
-  polkadot: "DOT",
-  "matic-network": "MATIC",
-  chainlink: "LINK",
-  xrp: "XRP",
-  dogecoin: "DOGE",
-  litecoin: "LTC",
+  BTCUSDT: "BTC", ETHUSDT: "ETH", SOLUSDT: "SOL", BNBUSDT: "BNB",
+  ADAUSDT: "ADA", AVAXUSDT: "AVAX", DOTUSDT: "DOT", MATICUSDT: "MATIC",
+  LINKUSDT: "LINK", XRPUSDT: "XRP", DOGEUSDT: "DOGE", LTCUSDT: "LTC",
 };
 
 const DISPLAY_ORDER = [
@@ -86,35 +81,32 @@ export default function MarketTicker() {
 
       ws.onmessage = (evt) => {
         try {
-          const msg = JSON.parse(evt.data as string) as Record<string, string>;
-          const updates: Partial<Record<string, { price: number }>> = {};
+          // Binance combined stream: { stream: "btcusdt@miniTicker", data: {...} }
+          const msg = JSON.parse(evt.data as string);
+          const d = msg?.data;
+          if (!d || d.e !== "24hrMiniTicker") return;
 
-          for (const [assetId, priceStr] of Object.entries(msg)) {
-            const sym = ASSET_TO_SYM[assetId];
-            if (!sym) continue;
-            const price = parseFloat(priceStr);
-            if (!price || isNaN(price)) continue;
+          const sym = ASSET_TO_SYM[d.s as string];
+          if (!sym) return;
+          const price = parseFloat(d.c);
+          const open = parseFloat(d.o);
+          if (!price || isNaN(price)) return;
+          const change24h = open > 0 ? ((price - open) / open) * 100 : 0;
 
-            const prev = prevPrices.current[sym] ?? 0;
-            if (prev && price !== prev) {
-              const dir = price > prev ? "up" : "dn";
-              setFlashing((f) => ({ ...f, [sym]: dir }));
-              setTimeout(
-                () => setFlashing((f) => { const n = { ...f }; delete n[sym]; return n; }),
-                600
-              );
-            }
-            prevPrices.current[sym] = price;
-            updates[sym] = { price };
-          }
-
-          if (Object.keys(updates).length > 0) {
-            setCoins((prev) =>
-              prev.map((c) =>
-                updates[c.symbol] ? { ...c, price: updates[c.symbol]!.price } : c
-              )
+          const prev = prevPrices.current[sym] ?? 0;
+          if (prev && price !== prev) {
+            const dir = price > prev ? "up" : "dn";
+            setFlashing((f) => ({ ...f, [sym]: dir }));
+            setTimeout(
+              () => setFlashing((f) => { const n = { ...f }; delete n[sym]; return n; }),
+              600
             );
           }
+          prevPrices.current[sym] = price;
+
+          setCoins((prev) =>
+            prev.map((c) => (c.symbol === sym ? { ...c, price, change24h } : c))
+          );
         } catch {
           // ignore parse errors
         }
