@@ -11,16 +11,20 @@ interface LiveChatWidgetProps {
 export function LiveChatWidget({ provider, widgetId, customCode }: LiveChatWidgetProps) {
   useEffect(() => {
     const SCRIPT_ID = "lc-widget-script";
-    const existing = document.getElementById(SCRIPT_ID);
-    if (existing) existing.remove();
+    document.getElementById(SCRIPT_ID)?.remove();
 
     const script = document.createElement("script");
     script.id = SCRIPT_ID;
     script.async = true;
     script.type = "text/javascript";
 
-    if (provider === "tawk" && widgetId) {
-      script.innerHTML = `var Tawk_API=Tawk_API||{},Tawk_LoadStart=new Date();(function(){var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];s1.async=true;s1.src="https://embed.tawk.to/${widgetId}/default";s1.charset="UTF-8";s1.setAttribute("crossorigin","*");s0.parentNode.insertBefore(s1,s0)})();`;
+    if (provider === "jivo" && widgetId) {
+      script.src = `//code.jivosite.com/widget/${widgetId}`;
+    } else if (provider === "tawk" && widgetId) {
+      const parts = widgetId.split("/");
+      const propertyId = parts[0];
+      const widgetHash = parts[1] ?? "default";
+      script.innerHTML = `var Tawk_API=Tawk_API||{},Tawk_LoadStart=new Date();(function(){var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];s1.async=true;s1.src="https://embed.tawk.to/${propertyId}/${widgetHash}";s1.charset="UTF-8";s1.setAttribute("crossorigin","*");s0.parentNode.insertBefore(s1,s0)})();`;
     } else if (provider === "crisp" && widgetId) {
       script.innerHTML = `window.$crisp=[];window.CRISP_WEBSITE_ID="${widgetId}";(function(){var d=document;var s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s)})();`;
     } else if (provider === "intercom" && widgetId) {

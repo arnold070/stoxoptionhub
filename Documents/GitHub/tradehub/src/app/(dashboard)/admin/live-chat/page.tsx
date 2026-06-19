@@ -7,6 +7,15 @@ export const dynamic = "force-dynamic";
 
 const PROVIDERS = [
   {
+    value: "jivo",
+    label: "JivoChat",
+    description: "Currently active — multi-channel live chat",
+    docsUrl: "https://www.jivosite.com",
+    placeholder: "e.g. 0TczbF90HW",
+    idLabel: "Widget ID",
+    hint: "Found in JivoChat → Manage → Channels → Website → your widget code (the ID after /widget/)",
+  },
+  {
     value: "tawk",
     label: "Tawk.to",
     description: "Free live chat, unlimited agents",
