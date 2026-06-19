@@ -1,22 +1,106 @@
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "@/lib/actions/auth";
-import { getAdminWallets, adminCreditWallet, adminDebitWallet, adminFreezeUser, adminUnfreezeUser } from "@/lib/actions/admin";
+import {
+  getAdminWallets, adminCreditWallet, adminDebitWallet,
+  adminFreezeUser, adminUnfreezeUser, getSiteConfig, updateSiteConfig,
+} from "@/lib/actions/admin";
 import { formatCurrency, formatDate } from "@/lib/utils";
-import { CreditCard, PlusCircle, MinusCircle, Lock, Unlock } from "lucide-react";
+import { CreditCard, PlusCircle, MinusCircle, Lock, Unlock, Wallet } from "lucide-react";
 
-export default async function AdminWalletPage() {
+const DEPOSIT_CFG = [
+  { key: "deposit_usdt_trc20", label: "USDT — TRC-20", placeholder: "T…", hint: "Tron network address starting with T" },
+  { key: "deposit_usdt_erc20", label: "USDT — ERC-20", placeholder: "0x…", hint: "Ethereum network address" },
+  { key: "deposit_usdt_bep20", label: "USDT — BEP-20", placeholder: "0x…", hint: "BNB Smart Chain address" },
+  { key: "deposit_btc",        label: "Bitcoin — BTC",  placeholder: "bc1… or 1… or 3…", hint: "Native SegWit, Legacy, or P2SH" },
+];
+
+export default async function AdminWalletPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ saved?: string }>;
+}) {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
   if (user.role !== "ADMIN") redirect("/dashboard");
 
-  const wallets = await getAdminWallets();
+  const sp = await searchParams;
+  const [wallets, cfg] = await Promise.all([getAdminWallets(), getSiteConfig()]);
+  const depositAddresses: Record<string, string> = {
+    deposit_usdt_trc20: cfg.deposit_usdt_trc20 ?? "",
+    deposit_usdt_erc20: cfg.deposit_usdt_erc20 ?? "",
+    deposit_usdt_bep20: cfg.deposit_usdt_bep20 ?? "",
+    deposit_btc:        cfg.deposit_btc ?? "",
+  };
 
   return (
-    <div>
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-white">Wallet Management</h1>
-        <p className="text-[13px] text-[#555] mt-1">Credit, debit, and freeze user wallets. All changes are logged and audited.</p>
+    <div className="space-y-10">
+      {/* ── Platform Deposit Addresses ── */}
+      <div>
+        <div className="mb-5">
+          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+            <Wallet size={20} className="text-[#f0b429]" /> Platform Deposit Addresses
+          </h1>
+          <p className="text-[13px] text-[#555] mt-1">
+            These addresses are shown to users on the deposit screen. Set one address per network.
+          </p>
+        </div>
+
+        {sp.saved && (
+          <div className="mb-4 p-3 rounded-xl bg-[#22c55e]/10 border border-[#22c55e]/20 text-[#22c55e] text-[13px]">
+            Deposit addresses saved successfully.
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {DEPOSIT_CFG.map(({ key, label, placeholder, hint }) => (
+            <div key={key} className="bg-[#111] border border-[#1e1e1e] rounded-xl p-5">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[12px] font-bold text-white uppercase tracking-wide">{label}</span>
+                {depositAddresses[key] && (
+                  <span className="text-[9px] bg-[#22c55e]/10 text-[#22c55e] px-2 py-0.5 rounded font-bold uppercase tracking-wider">
+                    Set
+                  </span>
+                )}
+              </div>
+              <form
+                action={async (fd: FormData) => {
+                  "use server";
+                  const val = (fd.get("address") as string).trim();
+                  if (val) await updateSiteConfig(key, val);
+                  revalidatePath("/admin/wallet");
+                  redirect("/admin/wallet?saved=1");
+                }}
+                className="space-y-2"
+              >
+                <input
+                  name="address"
+                  type="text"
+                  defaultValue={depositAddresses[key]}
+                  placeholder={placeholder}
+                  spellCheck={false}
+                  autoComplete="off"
+                  className="w-full px-3 py-2.5 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg text-[12px] text-white placeholder:text-[#444] font-mono outline-none focus:border-[#f0b429]/50 transition-colors"
+                />
+                <p className="text-[10px] text-[#444]">{hint}</p>
+                <button
+                  type="submit"
+                  className="w-full py-2 bg-[#f0b429] hover:bg-[#e0a424] text-black text-[11px] font-bold rounded-lg uppercase tracking-wide transition-colors"
+                >
+                  Save Address
+                </button>
+              </form>
+            </div>
+          ))}
+        </div>
       </div>
+
+      {/* ── User Wallet Management ── */}
+      <div>
+        <div className="mb-5">
+          <h2 className="text-xl font-bold text-white">User Wallet Management</h2>
+          <p className="text-[13px] text-[#555] mt-1">Credit, debit, and freeze user wallets. All changes are logged and audited.</p>
+        </div>
 
       <div className="space-y-4">
         {wallets.length === 0 && (
@@ -106,6 +190,7 @@ export default async function AdminWalletPage() {
             </div>
           );
         })}
+        </div>
       </div>
     </div>
   );

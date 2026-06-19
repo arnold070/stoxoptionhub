@@ -5,6 +5,15 @@ import { requestDeposit, requestWithdrawal } from "@/lib/actions/wallet";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { Copy, Shield, CheckCircle } from "lucide-react";
 
+type NetworkKey = "TRC20" | "ERC20" | "BEP20" | "BTC";
+
+const NETWORKS: { value: NetworkKey; label: string }[] = [
+  { value: "TRC20", label: "USDT (TRC-20)" },
+  { value: "ERC20", label: "USDT (ERC-20)" },
+  { value: "BEP20", label: "USDT (BEP-20)" },
+  { value: "BTC",   label: "Bitcoin (BTC)" },
+];
+
 interface Props {
   wallet: { balance: number; currency: string } | null;
   transactions: Array<{
@@ -17,19 +26,21 @@ interface Props {
     createdAt: Date;
   }>;
   stats: { allocated: number; pendingDeposits: number; activeInvestmentCount: number };
+  depositAddresses: Record<NetworkKey, string>;
 }
 
-const DEMO_ADDRESS = "TXm6Zp8uT7Z2rK8s4vN9wQmR3Lk2Pj7Yc";
-const DEMO_QR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' fill='%23fff'/%3E%3Crect x='10' y='10' width='40' height='40' fill='%23000'/%3E%3Crect x='15' y='15' width='30' height='30' fill='%23fff'/%3E%3Crect x='20' y='20' width='20' height='20' fill='%23000'/%3E%3Crect x='70' y='10' width='40' height='40' fill='%23000'/%3E%3Crect x='75' y='15' width='30' height='30' fill='%23fff'/%3E%3Crect x='80' y='20' width='20' height='20' fill='%23000'/%3E%3Crect x='10' y='70' width='40' height='40' fill='%23000'/%3E%3Crect x='15' y='75' width='30' height='30' fill='%23fff'/%3E%3Crect x='20' y='80' width='20' height='20' fill='%23000'/%3E%3Crect x='55' y='55' width='10' height='10' fill='%23000'/%3E%3Crect x='70' y='55' width='10' height='10' fill='%23000'/%3E%3Crect x='85' y='55' width='10' height='10' fill='%23000'/%3E%3Crect x='100' y='55' width='10' height='10' fill='%23000'/%3E%3Crect x='55' y='70' width='10' height='10' fill='%23000'/%3E%3Crect x='85' y='70' width='10' height='10' fill='%23000'/%3E%3Crect x='55' y='85' width='10' height='10' fill='%23000'/%3E%3Crect x='70' y='85' width='10' height='10' fill='%23000'/%3E%3Crect x='85' y='85' width='10' height='10' fill='%23000'/%3E%3Crect x='55' y='100' width='10' height='10' fill='%23000'/%3E%3Crect x='85' y='100' width='10' height='10' fill='%23000'/%3E%3Crect x='100' y='100' width='10' height='10' fill='%23000'/%3E%3C/svg%3E";
-
-export default function WalletClient({ wallet, transactions, stats }: Props) {
+export default function WalletClient({ wallet, transactions, stats, depositAddresses }: Props) {
   const [tab, setTab] = useState<"deposit" | "withdraw">("deposit");
+  const [network, setNetwork] = useState<NetworkKey>("TRC20");
   const [isPending, startTransition] = useTransition();
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [copied, setCopied] = useState(false);
 
+  const currentAddress = depositAddresses[network] ?? "";
+
   function copyAddress() {
-    navigator.clipboard.writeText(DEMO_ADDRESS);
+    if (!currentAddress) return;
+    navigator.clipboard.writeText(currentAddress);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   }
@@ -181,58 +192,74 @@ export default function WalletClient({ wallet, transactions, stats }: Props) {
             <div className="space-y-4">
               {/* Network selector */}
               <div>
-                <div className="text-[10px] text-[#555] uppercase tracking-wider mb-1.5">Network Selection</div>
-                <select aria-label="Network" className="w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-3 py-2.5 text-[13px] text-white outline-none">
-                  <option>USDT (TRC20)</option>
-                  <option>USDT (ERC20)</option>
-                  <option>BTC</option>
+                <div className="text-[10px] text-[#555] uppercase tracking-wider mb-1.5">Select Network</div>
+                <select
+                  aria-label="Network"
+                  value={network}
+                  onChange={(e) => { setNetwork(e.target.value as NetworkKey); setCopied(false); }}
+                  className="w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-3 py-2.5 text-[13px] text-white outline-none focus:border-[#f0b429]/50"
+                >
+                  {NETWORKS.map((n) => (
+                    <option key={n.value} value={n.value}>{n.label}</option>
+                  ))}
                 </select>
               </div>
 
-              {/* QR Code */}
-              <div className="flex justify-center p-4 bg-white rounded-xl">
-                <img src={DEMO_QR} alt="Deposit QR" width={120} height={120} />
-              </div>
-              <p className="text-[10px] text-center text-[#555] uppercase tracking-widest">Scan to Initiate Transfer</p>
-
-              {/* Address */}
-              <div>
-                <div className="text-[10px] text-[#555] uppercase tracking-wider mb-1.5">Your Receiving Address</div>
-                <div className="flex items-center gap-2">
-                  <div className="flex-1 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-3 py-2.5 text-[11px] text-[#888] font-mono truncate">
-                    {DEMO_ADDRESS.slice(0, 20)}…
+              {/* Address display */}
+              {currentAddress ? (
+                <>
+                  <div>
+                    <div className="text-[10px] text-[#555] uppercase tracking-wider mb-1.5">
+                      Send {network === "BTC" ? "BTC" : "USDT"} to this address
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-3 py-2.5 text-[11px] text-[#ccc] font-mono break-all">
+                        {currentAddress}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={copyAddress}
+                        className="p-2.5 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg hover:border-[#f0b429]/50 transition-colors shrink-0"
+                      >
+                        {copied
+                          ? <CheckCircle size={14} className="text-[#22c55e]" />
+                          : <Copy size={14} className="text-[#888]" />}
+                      </button>
+                    </div>
+                    {copied && (
+                      <p className="text-[10px] text-[#22c55e] mt-1">Address copied!</p>
+                    )}
                   </div>
-                  <button type="button" onClick={copyAddress} className="p-2.5 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg hover:border-[#f0b429]/50 transition-colors">
-                    {copied ? <CheckCircle size={14} className="text-[#22c55e]" /> : <Copy size={14} className="text-[#888]" />}
-                  </button>
+                  <div className="flex items-start gap-2 p-3 bg-[#1a1a1a] rounded-lg">
+                    <span className="text-[#f0b429] mt-0.5 text-[12px]">ⓘ</span>
+                    <p className="text-[11px] text-[#555]">
+                      Send only <strong className="text-white">{network === "BTC" ? "BTC" : `USDT on the ${network} network`}</strong> to
+                      this address. Sending the wrong asset or network will result in permanent loss of funds.
+                    </p>
+                  </div>
+                </>
+              ) : (
+                <div className="p-4 bg-[#1a1a1a] rounded-xl border border-[#2a2a2a] text-center">
+                  <p className="text-[12px] text-[#555]">
+                    Deposit address for this network is not yet configured.
+                    Please contact support or choose a different network.
+                  </p>
                 </div>
-              </div>
+              )}
 
-              <div className="flex items-start gap-2 p-3 bg-[#1a1a1a] rounded-lg">
-                <span className="text-[#f0b429] mt-0.5 text-[12px]">ⓘ</span>
-                <p className="text-[11px] text-[#555]">Send only USDT. Other assets will be permanently lost.</p>
-              </div>
-
-              {/* Manual deposit form */}
+              {/* Manual deposit confirmation form */}
               <form onSubmit={handleDeposit} className="space-y-3 border-t border-[#1e1e1e] pt-4">
-                <div className="text-[10px] text-[#555] uppercase tracking-wider">Submit your deposit details</div>
-                <input name="amount" type="number" min="10" step="0.01" required placeholder="Amount (min $10)"
+                <div className="text-[10px] text-[#555] uppercase tracking-wider">After sending — confirm your deposit</div>
+                <input name="amount" type="number" min="10" step="0.01" required placeholder="Amount sent (min $10)"
                   className="w-full px-3 py-2 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg text-[12px] text-white placeholder:text-[#444] outline-none focus:border-[#f0b429]/50" />
-                <select name="network" required aria-label="Network"
-                  className="w-full px-3 py-2 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg text-[12px] text-white outline-none focus:border-[#f0b429]/50 appearance-none">
-                  <option value="">Select network…</option>
-                  <option value="TRC20">USDT (TRC20)</option>
-                  <option value="ERC20">USDT (ERC20)</option>
-                  <option value="BEP20">USDT (BEP20)</option>
-                  <option value="BTC">Bitcoin (BTC)</option>
-                </select>
-                <input name="txHash" type="text" required placeholder="Transaction Hash (TXID)"
+                <input name="network" type="hidden" value={network} />
+                <input name="txHash" type="text" required placeholder="Transaction Hash / TXID"
                   className="w-full px-3 py-2 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg text-[12px] text-white placeholder:text-[#444] outline-none focus:border-[#f0b429]/50 font-mono" />
                 <input name="notes" type="text" placeholder="Notes (optional)"
                   className="w-full px-3 py-2 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg text-[12px] text-white placeholder:text-[#444] outline-none focus:border-[#f0b429]/50" />
-                <button type="submit" disabled={isPending}
-                  className="w-full py-2.5 bg-[#f0b429] hover:bg-[#e0a424] disabled:opacity-50 text-black text-[12px] font-bold rounded-lg uppercase tracking-wide transition-colors">
-                  {isPending ? "Submitting…" : "Submit Deposit"}
+                <button type="submit" disabled={isPending || !currentAddress}
+                  className="w-full py-2.5 bg-[#f0b429] hover:bg-[#e0a424] disabled:opacity-40 text-black text-[12px] font-bold rounded-lg uppercase tracking-wide transition-colors">
+                  {isPending ? "Submitting…" : "Confirm Deposit"}
                 </button>
               </form>
             </div>
