@@ -22,11 +22,15 @@ const TIER_DESC: Record<string, string> = {
   PLATINUM: "Full alpha, quant-grade execution.",
 };
 
-export default async function CopyTradingPage() {
+export default async function CopyTradingPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
 
-  const [strategies, myAllocations] = await Promise.all([getStrategies(), getUserAllocations()]);
+  const [strategies, myAllocations, sp] = await Promise.all([getStrategies(), getUserAllocations(), searchParams]);
   const myAllocationIds = new Set(myAllocations.map((a) => a.strategyId));
 
   const tiers = ["BRONZE", "SILVER", "GOLD", "PLATINUM"] as const;
@@ -39,6 +43,11 @@ export default async function CopyTradingPage() {
 
   return (
     <div className="space-y-8">
+      {sp.error && (
+        <div className="p-3 rounded-xl bg-[#ef4444]/10 border border-[#ef4444]/20 text-[#ef4444] text-[13px]">
+          {decodeURIComponent(sp.error)}
+        </div>
+      )}
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div>
@@ -76,7 +85,13 @@ export default async function CopyTradingPage() {
                   </div>
                   <p className="text-[22px] font-bold text-white mb-1">{formatCurrency(alloc.amount)}</p>
                   <p className="text-[11px] text-[#22c55e] mb-4">+{alloc.strategy.performance}% ROI (30D)</p>
-                  <form action={async () => { "use server"; await withdrawFromStrategy({ allocationId: alloc.id }); revalidatePath("/trading"); revalidatePath("/wallet"); }}>
+                  <form action={async () => {
+                    "use server";
+                    const result = await withdrawFromStrategy({ allocationId: alloc.id });
+                    if (!result.success) redirect(`/trading?error=${encodeURIComponent(result.error)}`);
+                    revalidatePath("/trading");
+                    revalidatePath("/wallet");
+                  }}>
                     <button type="submit" className="w-full py-2 text-[12px] font-semibold text-[#ef4444] border border-[#ef4444]/30 rounded-lg hover:bg-[#ef4444]/10 transition-colors">
                       Withdraw
                     </button>
@@ -163,7 +178,8 @@ export default async function CopyTradingPage() {
               ) : (
                 <form action={async (fd: FormData) => {
                   "use server";
-                  await allocateToStrategy({ strategyId: strategy.id, amount: parseFloat(fd.get("amount") as string) });
+                  const result = await allocateToStrategy({ strategyId: strategy.id, amount: parseFloat(fd.get("amount") as string) });
+                  if (!result.success) redirect(`/trading?error=${encodeURIComponent(result.error)}`);
                   revalidatePath("/trading");
                   revalidatePath("/wallet");
                 }}>

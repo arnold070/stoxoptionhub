@@ -123,16 +123,10 @@ export async function loginUser(data: {
     return { success: false, error: "Invalid email or password" };
   }
 
-  let effectiveRole = user.role;
-  if (user.email === "admin@stoxoptionhub.com" && user.role !== "ADMIN") {
-    await prisma.user.update({ where: { id: user.id }, data: { role: "ADMIN" } });
-    effectiveRole = "ADMIN";
-  }
-
   const token = await createSession({
     userId: user.id,
     email: user.email,
-    role: effectiveRole,
+    role: user.role,
     name: user.name,
   });
 

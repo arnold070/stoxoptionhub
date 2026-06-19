@@ -17,15 +17,24 @@ function parseBenefits(raw: string): string[] {
   return raw.split(",").map((s) => s.trim()).filter(Boolean);
 }
 
-export default async function MembershipsPage() {
+export default async function MembershipsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
 
-  const [plans, memberships] = await Promise.all([getPlans(), getUserMemberships()]);
+  const [plans, memberships, sp] = await Promise.all([getPlans(), getUserMemberships(), searchParams]);
   const activeMembership = memberships.find((m) => m.status === "ACTIVE");
 
   return (
     <div className="space-y-8">
+      {sp.error && (
+        <div className="p-3 rounded-xl bg-[#ef4444]/10 border border-[#ef4444]/20 text-[#ef4444] text-[13px]">
+          {decodeURIComponent(sp.error)}
+        </div>
+      )}
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-white">Mentorship Plans</h1>
@@ -44,7 +53,12 @@ export default async function MembershipsPage() {
                 </div>
               )}
             </div>
-            <form action={async () => { "use server"; await cancelMembership({ membershipId: activeMembership.id }); revalidatePath("/memberships"); }}>
+            <form action={async () => {
+              "use server";
+              const result = await cancelMembership({ membershipId: activeMembership.id });
+              if (!result.success) redirect(`/memberships?error=${encodeURIComponent(result.error)}`);
+              revalidatePath("/memberships");
+            }}>
               <button type="submit" className="ml-4 text-[11px] text-[#ef4444]/70 hover:text-[#ef4444] transition-colors">
                 Cancel
               </button>
@@ -88,7 +102,13 @@ export default async function MembershipsPage() {
               </ul>
 
               {!isCurrent && (
-                <form action={async () => { "use server"; await purchaseMembership({ planId: plan.id }); revalidatePath("/memberships"); revalidatePath("/wallet"); }}>
+                <form action={async () => {
+                  "use server";
+                  const result = await purchaseMembership({ planId: plan.id });
+                  if (!result.success) redirect(`/memberships?error=${encodeURIComponent(result.error)}`);
+                  revalidatePath("/memberships");
+                  revalidatePath("/wallet");
+                }}>
                   <button type="submit" className={`w-full py-2.5 rounded-lg text-[13px] font-bold uppercase tracking-wide transition-colors ${accent.btn}`}>
                     Get {plan.name}
                   </button>

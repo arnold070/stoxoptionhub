@@ -12,14 +12,19 @@ function statusBadge(status: string) {
   return "bg-[#555]/10 text-[#555]";
 }
 
-export default async function InvestmentsPage() {
+export default async function InvestmentsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
 
-  const [plans, myInvestments, wallet] = await Promise.all([
+  const [plans, myInvestments, wallet, sp] = await Promise.all([
     getInvestmentPlans(),
     getMyInvestments(),
     getWallet(),
+    searchParams,
   ]);
 
   const activeInvestments = myInvestments.filter((i) => i.status === "ACTIVE");
@@ -28,6 +33,11 @@ export default async function InvestmentsPage() {
 
   return (
     <div className="space-y-6">
+      {sp.error && (
+        <div className="p-3 rounded-xl bg-[#ef4444]/10 border border-[#ef4444]/20 text-[#ef4444] text-[13px]">
+          {decodeURIComponent(sp.error)}
+        </div>
+      )}
       <div>
         <h1 className="text-2xl font-bold text-white">Investment Plans</h1>
         <p className="text-[13px] text-[#555] mt-1">
@@ -67,10 +77,11 @@ export default async function InvestmentsPage() {
                 key={plan.id}
                 action={async (fd: FormData) => {
                   "use server";
-                  await purchaseInvestment({
+                  const result = await purchaseInvestment({
                     planId: fd.get("planId") as string,
                     amount: parseFloat(fd.get("amount") as string),
                   });
+                  if (!result.success) redirect(`/investments?error=${encodeURIComponent(result.error)}`);
                   revalidatePath("/investments");
                   revalidatePath("/wallet");
                 }}
