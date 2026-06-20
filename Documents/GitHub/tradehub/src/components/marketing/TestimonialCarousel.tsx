@@ -5,10 +5,10 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const TESTIMONIALS = [
   {
-    name: "James Okonkwo",
+    name: "Kings Spark",
     location: "Lagos, Nigeria",
     role: "Retail Trader",
-    initials: "JO",
+    initials: "KS",
     color: "from-[#f0b429] to-[#e0a424]",
     quote: "The structured copy trading plans gave me access to professional-grade strategies I couldn't build on my own. The deposit approval process is thorough and gives me real confidence in the platform's integrity.",
   },
