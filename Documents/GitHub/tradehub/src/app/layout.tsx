@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import LiveChatLoader from "@/components/LiveChatLoader";
+import Script from "next/script";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -59,7 +59,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         {children}
-        <LiveChatLoader />
+        <Script src="//code.jivosite.com/widget/0TczbF90HW" strategy="afterInteractive" />
       </body>
     </html>
   );

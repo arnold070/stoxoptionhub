@@ -17,11 +17,14 @@ export default async function LiveChatLoader() {
     // DB unavailable — fall through to defaults
   }
 
-  if (cfg.livechat_enabled === "false") return null;
-
   const provider = (cfg.livechat_provider || DEFAULT_PROVIDER).trim();
-  const widgetId = (cfg.livechat_widget_id || DEFAULT_WIDGET_ID).trim();
+  // If admin explicitly cleared the widget ID in the panel, treat as disabled
+  const widgetId = cfg.livechat_widget_id !== undefined
+    ? cfg.livechat_widget_id.trim()
+    : DEFAULT_WIDGET_ID;
   const customCode = (cfg.livechat_custom_code ?? "").trim();
+
+  if (!widgetId && provider !== "custom") return null;
 
   if (provider === "jivo" && widgetId) {
     return <Script src={`//code.jivosite.com/widget/${widgetId}`} strategy="lazyOnload" />;
