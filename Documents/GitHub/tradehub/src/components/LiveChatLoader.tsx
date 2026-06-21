@@ -1,18 +1,26 @@
 import Script from "next/script";
 import { getPublicSiteConfig } from "@/lib/actions/admin";
 
+const DEFAULT_PROVIDER = "jivo";
+const DEFAULT_WIDGET_ID = "0TczbF90HW";
+
 export default async function LiveChatLoader() {
-  const cfg = await getPublicSiteConfig([
-    "livechat_enabled",
-    "livechat_provider",
-    "livechat_widget_id",
-    "livechat_custom_code",
-  ]);
+  let cfg: Record<string, string> = {};
+  try {
+    cfg = await getPublicSiteConfig([
+      "livechat_enabled",
+      "livechat_provider",
+      "livechat_widget_id",
+      "livechat_custom_code",
+    ]);
+  } catch {
+    // DB unavailable — fall through to defaults
+  }
 
   if (cfg.livechat_enabled === "false") return null;
 
-  const provider = (cfg.livechat_provider || "jivo").trim();
-  const widgetId = (cfg.livechat_widget_id || "0TczbF90HW").trim();
+  const provider = (cfg.livechat_provider || DEFAULT_PROVIDER).trim();
+  const widgetId = (cfg.livechat_widget_id || DEFAULT_WIDGET_ID).trim();
   const customCode = (cfg.livechat_custom_code ?? "").trim();
 
   if (provider === "jivo" && widgetId) {
