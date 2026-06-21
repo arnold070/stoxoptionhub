@@ -9,13 +9,13 @@ export default async function LiveChatLoader() {
     "livechat_custom_code",
   ]);
 
-  if (cfg.livechat_enabled !== "true") return null;
+  // Disabled only when explicitly set to "false"
+  if (cfg.livechat_enabled === "false") return null;
 
-  const provider = cfg.livechat_provider ?? "";
-  const widgetId = (cfg.livechat_widget_id ?? "").trim();
+  const provider = (cfg.livechat_provider || "jivo").trim();
+  const widgetId = (cfg.livechat_widget_id || "0TczbF90HW").trim();
   const customCode = (cfg.livechat_custom_code ?? "").trim();
 
-  if (!provider) return null;
   if (provider !== "custom" && !widgetId) return null;
   if (provider === "custom" && !customCode) return null;
 
