@@ -1,21 +1,11 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "@/lib/actions/auth";
-import { getPlans, getUserMemberships, purchaseMembership, cancelMembership } from "@/lib/actions/memberships";
+import { getPlans, getUserMemberships, cancelMembership } from "@/lib/actions/memberships";
+import { prisma } from "@/lib/prisma";
 import { formatCurrency, formatDate } from "@/lib/utils";
-import { CheckCircle, Zap } from "lucide-react";
-
-const PLAN_ACCENTS: Record<string, { border: string; badge: string; btn: string }> = {
-  "Beginner Track":     { border: "border-[#22c55e]/30",  badge: "bg-[#22c55e]/10 text-[#22c55e]", btn: "bg-[#1e1e1e] hover:bg-[#2a2a2a] text-white border border-[#2a2a2a]" },
-  "Intermediate Track": { border: "border-[#f0b429]/40",  badge: "bg-[#f0b429]/10 text-[#f0b429]", btn: "bg-[#f0b429] hover:bg-[#e0a424] text-black" },
-  "Advanced Track":     { border: "border-[#ef4444]/30",  badge: "bg-[#ef4444]/10 text-[#ef4444]", btn: "bg-[#818cf8] hover:bg-[#6366f1] text-white" },
-};
-const DEFAULT_ACCENT = { border: "border-[#2a2a2a]", badge: "bg-[#1e1e1e] text-[#888]", btn: "bg-[#1e1e1e] hover:bg-[#2a2a2a] text-white border border-[#2a2a2a]" };
-
-function parseBenefits(raw: string): string[] {
-  try { const p = JSON.parse(raw); if (Array.isArray(p)) return p; } catch { /* fallthrough */ }
-  return raw.split(",").map((s) => s.trim()).filter(Boolean);
-}
+import { CheckCircle } from "lucide-react";
+import MembershipPlansClient from "./MembershipPlansClient";
 
 export default async function MembershipsPage({
   searchParams,
@@ -25,8 +15,15 @@ export default async function MembershipsPage({
   const user = await getCurrentUser();
   if (!user) redirect("/login");
 
-  const [plans, memberships, sp] = await Promise.all([getPlans(), getUserMemberships(), searchParams]);
+  const [plans, memberships, wallet, sp] = await Promise.all([
+    getPlans(),
+    getUserMemberships(),
+    prisma.wallet.findUnique({ where: { userId: user.id } }),
+    searchParams,
+  ]);
+
   const activeMembership = memberships.find((m) => m.status === "ACTIVE");
+  const walletBalance = wallet?.balance ?? 0;
 
   return (
     <div className="space-y-8">
@@ -35,6 +32,7 @@ export default async function MembershipsPage({
           {decodeURIComponent(sp.error)}
         </div>
       )}
+
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-white">Mentorship Plans</h1>
@@ -67,57 +65,19 @@ export default async function MembershipsPage({
         )}
       </div>
 
-      {/* Plan cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {plans.map((plan) => {
-          const isCurrent = activeMembership && (activeMembership as any).planId === plan.id;
-          const benefits = parseBenefits(plan.benefits);
-          const accent = PLAN_ACCENTS[plan.name] ?? DEFAULT_ACCENT;
-
-          return (
-            <div key={plan.id} className={`bg-[#111] border ${accent.border} rounded-xl p-6 flex flex-col`}>
-              {isCurrent && (
-                <div className={`inline-flex items-center gap-1.5 self-start mb-3 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${accent.badge}`}>
-                  <Zap size={10} /> Current Plan
-                </div>
-              )}
-              <h3 className="text-[18px] font-bold text-white mb-1">{plan.name}</h3>
-              <p className="text-[12px] text-[#555] mb-4">{plan.description}</p>
-              <div className="mb-5">
-                <span className="text-[32px] font-bold text-white">{formatCurrency(plan.price)}</span>
-                {plan.duration && (
-                  <span className="text-[13px] text-[#555] ml-1">
-                    / {Math.round(plan.duration / 7)} weeks
-                  </span>
-                )}
-              </div>
-
-              <ul className="space-y-2.5 flex-1 mb-6">
-                {benefits.map((b) => (
-                  <li key={b} className="flex items-start gap-2 text-[12px] text-[#888]">
-                    <CheckCircle size={13} className="text-[#22c55e] mt-0.5 shrink-0" />
-                    {b}
-                  </li>
-                ))}
-              </ul>
-
-              {!isCurrent && (
-                <form action={async () => {
-                  "use server";
-                  const result = await purchaseMembership({ planId: plan.id });
-                  if (!result.success) redirect(`/memberships?error=${encodeURIComponent(result.error)}`);
-                  revalidatePath("/memberships");
-                  revalidatePath("/wallet");
-                }}>
-                  <button type="submit" className={`w-full py-2.5 rounded-lg text-[13px] font-bold uppercase tracking-wide transition-colors ${accent.btn}`}>
-                    Get {plan.name}
-                  </button>
-                </form>
-              )}
-            </div>
-          );
-        })}
-      </div>
+      {/* Plan cards with modal — client component */}
+      <MembershipPlansClient
+        plans={plans.map((p) => ({
+          id: p.id,
+          name: p.name,
+          description: p.description,
+          price: p.price,
+          duration: p.duration,
+          benefits: p.benefits,
+        }))}
+        activeMembershipPlanId={(activeMembership as any)?.planId}
+        walletBalance={walletBalance}
+      />
 
       {/* History */}
       {memberships.length > 0 && (
