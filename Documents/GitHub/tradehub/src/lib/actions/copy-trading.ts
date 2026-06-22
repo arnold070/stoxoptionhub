@@ -9,7 +9,7 @@ export async function getStrategies() {
   return prisma.strategy.findMany({
     where: { isActive: true },
     include: { _count: { select: { allocations: { where: { status: "ACTIVE" } } } } },
-    orderBy: { tier: "asc" },
+    orderBy: { minAmount: "asc" },
   });
 }
 
