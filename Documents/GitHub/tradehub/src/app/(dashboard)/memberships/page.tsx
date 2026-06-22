@@ -2,10 +2,13 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "@/lib/actions/auth";
 import { getPlans, getUserMemberships, cancelMembership } from "@/lib/actions/memberships";
+import { getPublicSiteConfig } from "@/lib/actions/admin";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { CheckCircle } from "lucide-react";
 import MembershipPlansClient from "./MembershipPlansClient";
+
+const DEPOSIT_KEYS = ["deposit_usdt_trc20","deposit_usdt_erc20","deposit_usdt_bep20","deposit_eth","deposit_btc"];
 
 export default async function MembershipsPage({
   searchParams,
@@ -15,12 +18,21 @@ export default async function MembershipsPage({
   const user = await getCurrentUser();
   if (!user) redirect("/login");
 
-  const [plans, memberships, wallet, sp] = await Promise.all([
+  const [plans, memberships, wallet, sp, cfg] = await Promise.all([
     getPlans(),
     getUserMemberships(),
     prisma.wallet.findUnique({ where: { userId: user.id } }),
     searchParams,
+    getPublicSiteConfig(DEPOSIT_KEYS),
   ]);
+
+  const depositAddresses = {
+    TRC20: cfg.deposit_usdt_trc20 ?? "",
+    ERC20: cfg.deposit_usdt_erc20 ?? "",
+    BEP20: cfg.deposit_usdt_bep20 ?? "",
+    ETH:   cfg.deposit_eth ?? "",
+    BTC:   cfg.deposit_btc ?? "",
+  };
 
   const activeMembership = memberships.find((m) => m.status === "ACTIVE");
   const walletBalance = wallet?.balance ?? 0;
@@ -77,6 +89,7 @@ export default async function MembershipsPage({
         }))}
         activeMembershipPlanId={(activeMembership as any)?.planId}
         walletBalance={walletBalance}
+        depositAddresses={depositAddresses}
       />
 
       {/* History */}

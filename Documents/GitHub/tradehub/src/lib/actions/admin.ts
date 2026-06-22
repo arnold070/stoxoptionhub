@@ -175,6 +175,60 @@ export async function approveTransaction(transactionId: string): Promise<ActionR
         where: { id: deposit.walletId },
         data: { balance: { increment: deposit.amount } },
       });
+
+      // Auto-activate plan if this deposit is linked to one
+      if (deposit.reference?.startsWith("plan_")) {
+        const parts = deposit.reference.split("_");
+        // format: plan_{copy|mentorship}_{entityId}_{traderId}
+        const planType = parts[1];
+        const entityId = parts[2];
+        const traderId = parts[3] ?? null;
+
+        if (planType === "copy") {
+          const strategy = await tx.strategy.findUnique({ where: { id: entityId } });
+          if (strategy?.isActive) {
+            await tx.allocation.create({
+              data: { userId: deposit.userId, strategyId: entityId, traderId, amount: deposit.amount, status: "ACTIVE" },
+            });
+            await tx.wallet.update({
+              where: { id: deposit.walletId },
+              data: { balance: { decrement: deposit.amount } },
+            });
+            await tx.transaction.create({
+              data: {
+                walletId: deposit.walletId, userId: deposit.userId,
+                type: "ALLOCATION_OUT", amount: deposit.amount, status: "COMPLETED",
+                description: `Allocated to ${strategy.name}`,
+              },
+            });
+          }
+        } else if (planType === "mentorship") {
+          const plan = await tx.plan.findUnique({ where: { id: entityId } });
+          if (plan?.isActive) {
+            const now = new Date();
+            const endDate = plan.duration
+              ? new Date(now.getTime() + plan.duration * 24 * 60 * 60 * 1000)
+              : null;
+            await tx.membership.create({
+              data: {
+                userId: deposit.userId, planId: entityId,
+                status: "ACTIVE", startDate: now, endDate, paidAt: now, amount: deposit.amount,
+              },
+            });
+            await tx.wallet.update({
+              where: { id: deposit.walletId },
+              data: { balance: { decrement: deposit.amount } },
+            });
+            await tx.transaction.create({
+              data: {
+                walletId: deposit.walletId, userId: deposit.userId,
+                type: "WITHDRAWAL", amount: deposit.amount, status: "COMPLETED",
+                description: `Membership: ${plan.name}`,
+              },
+            });
+          }
+        }
+      }
     }
     return deposit;
   });

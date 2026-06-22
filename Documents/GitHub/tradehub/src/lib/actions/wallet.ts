@@ -149,6 +149,63 @@ export async function requestWithdrawal({
   return { success: true };
 }
 
+export async function submitPlanDeposit({
+  planType,
+  planId,
+  hashCode,
+  amount,
+  network,
+  txHash,
+}: {
+  planType: "copy" | "mentorship";
+  planId: string;
+  hashCode: string;
+  amount: number;
+  network: string;
+  txHash: string;
+}): Promise<{ success: true; traderName: string } | { success: false; error: string }> {
+  const session = await getSession();
+  if (!session) return { success: false, error: "Not authenticated" };
+
+  const trimmedCode = (hashCode ?? "").trim();
+  if (!trimmedCode) return { success: false, error: "Trading code is required." };
+
+  const trader = await prisma.trader.findUnique({ where: { hashCode: trimmedCode } });
+  if (!trader || !trader.isActive) {
+    return { success: false, error: "Invalid trading code. Contact your admin for a valid code." };
+  }
+
+  if (amount <= 0) return { success: false, error: "Invalid amount." };
+  if (!network.trim()) return { success: false, error: "Network is required." };
+  if (!txHash.trim()) return { success: false, error: "Transaction hash is required." };
+
+  const wallet = await prisma.wallet.findUnique({ where: { userId: session.userId } });
+  if (!wallet) return { success: false, error: "Wallet not found." };
+
+  await prisma.transaction.create({
+    data: {
+      walletId: wallet.id,
+      userId: session.userId,
+      type: "DEPOSIT",
+      amount,
+      status: "PENDING",
+      txHash: txHash.trim(),
+      network: network.trim(),
+      reference: `plan_${planType}_${planId}_${trader.id}`,
+      description: `Plan deposit — awaiting activation`,
+    },
+  });
+
+  await createNotification(
+    session.userId,
+    "DEPOSIT_SUBMITTED",
+    "Plan Deposit Submitted",
+    `Your deposit of $${amount} has been submitted. Your plan will be activated once admin approves it.`
+  );
+
+  return { success: true, traderName: trader.name };
+}
+
 export async function getWalletStats() {
   const session = await getSession();
   if (!session) return { allocated: 0, pendingDeposits: 0, activeInvestmentCount: 0 };

@@ -2,9 +2,12 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "@/lib/actions/auth";
 import { getStrategies, getUserAllocations, withdrawFromStrategy } from "@/lib/actions/copy-trading";
+import { getPublicSiteConfig } from "@/lib/actions/admin";
 import { formatCurrency } from "@/lib/utils";
 import { CheckCircle, ShieldCheck } from "lucide-react";
 import TradingPlansClient from "./TradingPlansClient";
+
+const DEPOSIT_KEYS = ["deposit_usdt_trc20","deposit_usdt_erc20","deposit_usdt_bep20","deposit_eth","deposit_btc"];
 
 export default async function CopyTradingPage({
   searchParams,
@@ -14,11 +17,20 @@ export default async function CopyTradingPage({
   const user = await getCurrentUser();
   if (!user) redirect("/login");
 
-  const [strategies, myAllocations, sp] = await Promise.all([
+  const [strategies, myAllocations, sp, cfg] = await Promise.all([
     getStrategies(),
     getUserAllocations(),
     searchParams,
+    getPublicSiteConfig(DEPOSIT_KEYS),
   ]);
+
+  const depositAddresses = {
+    TRC20: cfg.deposit_usdt_trc20 ?? "",
+    ERC20: cfg.deposit_usdt_erc20 ?? "",
+    BEP20: cfg.deposit_usdt_bep20 ?? "",
+    ETH:   cfg.deposit_eth ?? "",
+    BTC:   cfg.deposit_btc ?? "",
+  };
 
   const myAllocationIds = myAllocations.map((a) => a.strategyId);
 
@@ -97,6 +109,7 @@ export default async function CopyTradingPage({
         <TradingPlansClient
           strategies={serializedStrategies}
           myAllocationIds={myAllocationIds}
+          depositAddresses={depositAddresses}
         />
       )}
 
