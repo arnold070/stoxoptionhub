@@ -48,6 +48,7 @@ const adminNavItems = [
   { href: "/admin/users",           icon: Users,           label: "Users" },
   { href: "/admin/plans",           icon: GraduationCap,   label: "Mentorship Plans" },
   { href: "/admin/strategies",      icon: TrendingUp,      label: "Copy Trading" },
+  { href: "/admin/traders",         icon: Users,           label: "Traders" },
   { href: "/admin/investments",     icon: BarChart2,       label: "Investment Plans" },
   { href: "/admin/deposits",        icon: Wallet,          label: "Deposits" },
   { href: "/admin/withdrawals",     icon: ArrowDownCircle, label: "Withdrawals" },

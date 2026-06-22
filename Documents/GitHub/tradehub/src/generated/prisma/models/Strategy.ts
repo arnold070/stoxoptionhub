@@ -29,12 +29,16 @@ export type AggregateStrategy = {
 export type StrategyAvgAggregateOutputType = {
   minAmount: number | null
   maxAmount: number | null
+  roiPercent: number | null
+  durationDays: number | null
   performance: number | null
 }
 
 export type StrategySumAggregateOutputType = {
   minAmount: number | null
   maxAmount: number | null
+  roiPercent: number | null
+  durationDays: number | null
   performance: number | null
 }
 
@@ -45,6 +49,8 @@ export type StrategyMinAggregateOutputType = {
   tier: $Enums.StrategyTier | null
   minAmount: number | null
   maxAmount: number | null
+  roiPercent: number | null
+  durationDays: number | null
   performance: number | null
   isActive: boolean | null
   managedBy: string | null
@@ -59,6 +65,8 @@ export type StrategyMaxAggregateOutputType = {
   tier: $Enums.StrategyTier | null
   minAmount: number | null
   maxAmount: number | null
+  roiPercent: number | null
+  durationDays: number | null
   performance: number | null
   isActive: boolean | null
   managedBy: string | null
@@ -73,6 +81,8 @@ export type StrategyCountAggregateOutputType = {
   tier: number
   minAmount: number
   maxAmount: number
+  roiPercent: number
+  durationDays: number
   performance: number
   isActive: number
   managedBy: number
@@ -85,12 +95,16 @@ export type StrategyCountAggregateOutputType = {
 export type StrategyAvgAggregateInputType = {
   minAmount?: true
   maxAmount?: true
+  roiPercent?: true
+  durationDays?: true
   performance?: true
 }
 
 export type StrategySumAggregateInputType = {
   minAmount?: true
   maxAmount?: true
+  roiPercent?: true
+  durationDays?: true
   performance?: true
 }
 
@@ -101,6 +115,8 @@ export type StrategyMinAggregateInputType = {
   tier?: true
   minAmount?: true
   maxAmount?: true
+  roiPercent?: true
+  durationDays?: true
   performance?: true
   isActive?: true
   managedBy?: true
@@ -115,6 +131,8 @@ export type StrategyMaxAggregateInputType = {
   tier?: true
   minAmount?: true
   maxAmount?: true
+  roiPercent?: true
+  durationDays?: true
   performance?: true
   isActive?: true
   managedBy?: true
@@ -129,6 +147,8 @@ export type StrategyCountAggregateInputType = {
   tier?: true
   minAmount?: true
   maxAmount?: true
+  roiPercent?: true
+  durationDays?: true
   performance?: true
   isActive?: true
   managedBy?: true
@@ -230,6 +250,8 @@ export type StrategyGroupByOutputType = {
   tier: $Enums.StrategyTier
   minAmount: number
   maxAmount: number | null
+  roiPercent: number
+  durationDays: number
   performance: number
   isActive: boolean
   managedBy: string | null
@@ -267,6 +289,8 @@ export type StrategyWhereInput = {
   tier?: Prisma.EnumStrategyTierFilter<"Strategy"> | $Enums.StrategyTier
   minAmount?: Prisma.FloatFilter<"Strategy"> | number
   maxAmount?: Prisma.FloatNullableFilter<"Strategy"> | number | null
+  roiPercent?: Prisma.FloatFilter<"Strategy"> | number
+  durationDays?: Prisma.IntFilter<"Strategy"> | number
   performance?: Prisma.FloatFilter<"Strategy"> | number
   isActive?: Prisma.BoolFilter<"Strategy"> | boolean
   managedBy?: Prisma.StringNullableFilter<"Strategy"> | string | null
@@ -282,6 +306,8 @@ export type StrategyOrderByWithRelationInput = {
   tier?: Prisma.SortOrder
   minAmount?: Prisma.SortOrder
   maxAmount?: Prisma.SortOrderInput | Prisma.SortOrder
+  roiPercent?: Prisma.SortOrder
+  durationDays?: Prisma.SortOrder
   performance?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   managedBy?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -300,6 +326,8 @@ export type StrategyWhereUniqueInput = Prisma.AtLeast<{
   tier?: Prisma.EnumStrategyTierFilter<"Strategy"> | $Enums.StrategyTier
   minAmount?: Prisma.FloatFilter<"Strategy"> | number
   maxAmount?: Prisma.FloatNullableFilter<"Strategy"> | number | null
+  roiPercent?: Prisma.FloatFilter<"Strategy"> | number
+  durationDays?: Prisma.IntFilter<"Strategy"> | number
   performance?: Prisma.FloatFilter<"Strategy"> | number
   isActive?: Prisma.BoolFilter<"Strategy"> | boolean
   managedBy?: Prisma.StringNullableFilter<"Strategy"> | string | null
@@ -315,6 +343,8 @@ export type StrategyOrderByWithAggregationInput = {
   tier?: Prisma.SortOrder
   minAmount?: Prisma.SortOrder
   maxAmount?: Prisma.SortOrderInput | Prisma.SortOrder
+  roiPercent?: Prisma.SortOrder
+  durationDays?: Prisma.SortOrder
   performance?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   managedBy?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -337,6 +367,8 @@ export type StrategyScalarWhereWithAggregatesInput = {
   tier?: Prisma.EnumStrategyTierWithAggregatesFilter<"Strategy"> | $Enums.StrategyTier
   minAmount?: Prisma.FloatWithAggregatesFilter<"Strategy"> | number
   maxAmount?: Prisma.FloatNullableWithAggregatesFilter<"Strategy"> | number | null
+  roiPercent?: Prisma.FloatWithAggregatesFilter<"Strategy"> | number
+  durationDays?: Prisma.IntWithAggregatesFilter<"Strategy"> | number
   performance?: Prisma.FloatWithAggregatesFilter<"Strategy"> | number
   isActive?: Prisma.BoolWithAggregatesFilter<"Strategy"> | boolean
   managedBy?: Prisma.StringNullableWithAggregatesFilter<"Strategy"> | string | null
@@ -351,6 +383,8 @@ export type StrategyCreateInput = {
   tier: $Enums.StrategyTier
   minAmount: number
   maxAmount?: number | null
+  roiPercent?: number
+  durationDays?: number
   performance?: number
   isActive?: boolean
   managedBy?: string | null
@@ -366,6 +400,8 @@ export type StrategyUncheckedCreateInput = {
   tier: $Enums.StrategyTier
   minAmount: number
   maxAmount?: number | null
+  roiPercent?: number
+  durationDays?: number
   performance?: number
   isActive?: boolean
   managedBy?: string | null
@@ -381,6 +417,8 @@ export type StrategyUpdateInput = {
   tier?: Prisma.EnumStrategyTierFieldUpdateOperationsInput | $Enums.StrategyTier
   minAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   maxAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  roiPercent?: Prisma.FloatFieldUpdateOperationsInput | number
+  durationDays?: Prisma.IntFieldUpdateOperationsInput | number
   performance?: Prisma.FloatFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   managedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -396,6 +434,8 @@ export type StrategyUncheckedUpdateInput = {
   tier?: Prisma.EnumStrategyTierFieldUpdateOperationsInput | $Enums.StrategyTier
   minAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   maxAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  roiPercent?: Prisma.FloatFieldUpdateOperationsInput | number
+  durationDays?: Prisma.IntFieldUpdateOperationsInput | number
   performance?: Prisma.FloatFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   managedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -411,6 +451,8 @@ export type StrategyCreateManyInput = {
   tier: $Enums.StrategyTier
   minAmount: number
   maxAmount?: number | null
+  roiPercent?: number
+  durationDays?: number
   performance?: number
   isActive?: boolean
   managedBy?: string | null
@@ -425,6 +467,8 @@ export type StrategyUpdateManyMutationInput = {
   tier?: Prisma.EnumStrategyTierFieldUpdateOperationsInput | $Enums.StrategyTier
   minAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   maxAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  roiPercent?: Prisma.FloatFieldUpdateOperationsInput | number
+  durationDays?: Prisma.IntFieldUpdateOperationsInput | number
   performance?: Prisma.FloatFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   managedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -439,6 +483,8 @@ export type StrategyUncheckedUpdateManyInput = {
   tier?: Prisma.EnumStrategyTierFieldUpdateOperationsInput | $Enums.StrategyTier
   minAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   maxAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  roiPercent?: Prisma.FloatFieldUpdateOperationsInput | number
+  durationDays?: Prisma.IntFieldUpdateOperationsInput | number
   performance?: Prisma.FloatFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   managedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -453,6 +499,8 @@ export type StrategyCountOrderByAggregateInput = {
   tier?: Prisma.SortOrder
   minAmount?: Prisma.SortOrder
   maxAmount?: Prisma.SortOrder
+  roiPercent?: Prisma.SortOrder
+  durationDays?: Prisma.SortOrder
   performance?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   managedBy?: Prisma.SortOrder
@@ -463,6 +511,8 @@ export type StrategyCountOrderByAggregateInput = {
 export type StrategyAvgOrderByAggregateInput = {
   minAmount?: Prisma.SortOrder
   maxAmount?: Prisma.SortOrder
+  roiPercent?: Prisma.SortOrder
+  durationDays?: Prisma.SortOrder
   performance?: Prisma.SortOrder
 }
 
@@ -473,6 +523,8 @@ export type StrategyMaxOrderByAggregateInput = {
   tier?: Prisma.SortOrder
   minAmount?: Prisma.SortOrder
   maxAmount?: Prisma.SortOrder
+  roiPercent?: Prisma.SortOrder
+  durationDays?: Prisma.SortOrder
   performance?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   managedBy?: Prisma.SortOrder
@@ -487,6 +539,8 @@ export type StrategyMinOrderByAggregateInput = {
   tier?: Prisma.SortOrder
   minAmount?: Prisma.SortOrder
   maxAmount?: Prisma.SortOrder
+  roiPercent?: Prisma.SortOrder
+  durationDays?: Prisma.SortOrder
   performance?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   managedBy?: Prisma.SortOrder
@@ -497,6 +551,8 @@ export type StrategyMinOrderByAggregateInput = {
 export type StrategySumOrderByAggregateInput = {
   minAmount?: Prisma.SortOrder
   maxAmount?: Prisma.SortOrder
+  roiPercent?: Prisma.SortOrder
+  durationDays?: Prisma.SortOrder
   performance?: Prisma.SortOrder
 }
 
@@ -538,6 +594,8 @@ export type StrategyCreateWithoutAllocationsInput = {
   tier: $Enums.StrategyTier
   minAmount: number
   maxAmount?: number | null
+  roiPercent?: number
+  durationDays?: number
   performance?: number
   isActive?: boolean
   managedBy?: string | null
@@ -552,6 +610,8 @@ export type StrategyUncheckedCreateWithoutAllocationsInput = {
   tier: $Enums.StrategyTier
   minAmount: number
   maxAmount?: number | null
+  roiPercent?: number
+  durationDays?: number
   performance?: number
   isActive?: boolean
   managedBy?: string | null
@@ -582,6 +642,8 @@ export type StrategyUpdateWithoutAllocationsInput = {
   tier?: Prisma.EnumStrategyTierFieldUpdateOperationsInput | $Enums.StrategyTier
   minAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   maxAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  roiPercent?: Prisma.FloatFieldUpdateOperationsInput | number
+  durationDays?: Prisma.IntFieldUpdateOperationsInput | number
   performance?: Prisma.FloatFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   managedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -596,6 +658,8 @@ export type StrategyUncheckedUpdateWithoutAllocationsInput = {
   tier?: Prisma.EnumStrategyTierFieldUpdateOperationsInput | $Enums.StrategyTier
   minAmount?: Prisma.FloatFieldUpdateOperationsInput | number
   maxAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  roiPercent?: Prisma.FloatFieldUpdateOperationsInput | number
+  durationDays?: Prisma.IntFieldUpdateOperationsInput | number
   performance?: Prisma.FloatFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   managedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -641,6 +705,8 @@ export type StrategySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   tier?: boolean
   minAmount?: boolean
   maxAmount?: boolean
+  roiPercent?: boolean
+  durationDays?: boolean
   performance?: boolean
   isActive?: boolean
   managedBy?: boolean
@@ -657,6 +723,8 @@ export type StrategySelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   tier?: boolean
   minAmount?: boolean
   maxAmount?: boolean
+  roiPercent?: boolean
+  durationDays?: boolean
   performance?: boolean
   isActive?: boolean
   managedBy?: boolean
@@ -671,6 +739,8 @@ export type StrategySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   tier?: boolean
   minAmount?: boolean
   maxAmount?: boolean
+  roiPercent?: boolean
+  durationDays?: boolean
   performance?: boolean
   isActive?: boolean
   managedBy?: boolean
@@ -685,6 +755,8 @@ export type StrategySelectScalar = {
   tier?: boolean
   minAmount?: boolean
   maxAmount?: boolean
+  roiPercent?: boolean
+  durationDays?: boolean
   performance?: boolean
   isActive?: boolean
   managedBy?: boolean
@@ -692,7 +764,7 @@ export type StrategySelectScalar = {
   updatedAt?: boolean
 }
 
-export type StrategyOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "description" | "tier" | "minAmount" | "maxAmount" | "performance" | "isActive" | "managedBy" | "createdAt" | "updatedAt", ExtArgs["result"]["strategy"]>
+export type StrategyOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "description" | "tier" | "minAmount" | "maxAmount" | "roiPercent" | "durationDays" | "performance" | "isActive" | "managedBy" | "createdAt" | "updatedAt", ExtArgs["result"]["strategy"]>
 export type StrategyInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   allocations?: boolean | Prisma.Strategy$allocationsArgs<ExtArgs>
   _count?: boolean | Prisma.StrategyCountOutputTypeDefaultArgs<ExtArgs>
@@ -712,6 +784,8 @@ export type $StrategyPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     tier: $Enums.StrategyTier
     minAmount: number
     maxAmount: number | null
+    roiPercent: number
+    durationDays: number
     performance: number
     isActive: boolean
     managedBy: string | null
@@ -1147,6 +1221,8 @@ export interface StrategyFieldRefs {
   readonly tier: Prisma.FieldRef<"Strategy", 'StrategyTier'>
   readonly minAmount: Prisma.FieldRef<"Strategy", 'Float'>
   readonly maxAmount: Prisma.FieldRef<"Strategy", 'Float'>
+  readonly roiPercent: Prisma.FieldRef<"Strategy", 'Float'>
+  readonly durationDays: Prisma.FieldRef<"Strategy", 'Int'>
   readonly performance: Prisma.FieldRef<"Strategy", 'Float'>
   readonly isActive: Prisma.FieldRef<"Strategy", 'Boolean'>
   readonly managedBy: Prisma.FieldRef<"Strategy", 'String'>

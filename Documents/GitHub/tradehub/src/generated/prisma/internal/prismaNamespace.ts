@@ -388,6 +388,7 @@ export const ModelName = {
   Plan: 'Plan',
   Membership: 'Membership',
   Strategy: 'Strategy',
+  Trader: 'Trader',
   Allocation: 'Allocation',
   Wallet: 'Wallet',
   Transaction: 'Transaction',
@@ -417,7 +418,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "plan" | "membership" | "strategy" | "allocation" | "wallet" | "transaction" | "investmentPlan" | "userInvestment" | "notification" | "content" | "liveSession" | "community" | "verificationToken" | "passwordResetToken" | "auditLog" | "siteConfig" | "cmsPage"
+    modelProps: "user" | "plan" | "membership" | "strategy" | "trader" | "allocation" | "wallet" | "transaction" | "investmentPlan" | "userInvestment" | "notification" | "content" | "liveSession" | "community" | "verificationToken" | "passwordResetToken" | "auditLog" | "siteConfig" | "cmsPage"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -714,6 +715,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.StrategyCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.StrategyCountAggregateOutputType> | number
+        }
+      }
+    }
+    Trader: {
+      payload: Prisma.$TraderPayload<ExtArgs>
+      fields: Prisma.TraderFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.TraderFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TraderPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.TraderFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TraderPayload>
+        }
+        findFirst: {
+          args: Prisma.TraderFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TraderPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.TraderFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TraderPayload>
+        }
+        findMany: {
+          args: Prisma.TraderFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TraderPayload>[]
+        }
+        create: {
+          args: Prisma.TraderCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TraderPayload>
+        }
+        createMany: {
+          args: Prisma.TraderCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.TraderCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TraderPayload>[]
+        }
+        delete: {
+          args: Prisma.TraderDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TraderPayload>
+        }
+        update: {
+          args: Prisma.TraderUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TraderPayload>
+        }
+        deleteMany: {
+          args: Prisma.TraderDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.TraderUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.TraderUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TraderPayload>[]
+        }
+        upsert: {
+          args: Prisma.TraderUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TraderPayload>
+        }
+        aggregate: {
+          args: Prisma.TraderAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTrader>
+        }
+        groupBy: {
+          args: Prisma.TraderGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TraderGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.TraderCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TraderCountAggregateOutputType> | number
         }
       }
     }
@@ -1852,6 +1927,8 @@ export const StrategyScalarFieldEnum = {
   tier: 'tier',
   minAmount: 'minAmount',
   maxAmount: 'maxAmount',
+  roiPercent: 'roiPercent',
+  durationDays: 'durationDays',
   performance: 'performance',
   isActive: 'isActive',
   managedBy: 'managedBy',
@@ -1862,10 +1939,24 @@ export const StrategyScalarFieldEnum = {
 export type StrategyScalarFieldEnum = (typeof StrategyScalarFieldEnum)[keyof typeof StrategyScalarFieldEnum]
 
 
+export const TraderScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  hashCode: 'hashCode',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TraderScalarFieldEnum = (typeof TraderScalarFieldEnum)[keyof typeof TraderScalarFieldEnum]
+
+
 export const AllocationScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
   strategyId: 'strategyId',
+  traderId: 'traderId',
   amount: 'amount',
   status: 'status',
   notes: 'notes',
@@ -2306,6 +2397,7 @@ export type GlobalOmitConfig = {
   plan?: Prisma.PlanOmit
   membership?: Prisma.MembershipOmit
   strategy?: Prisma.StrategyOmit
+  trader?: Prisma.TraderOmit
   allocation?: Prisma.AllocationOmit
   wallet?: Prisma.WalletOmit
   transaction?: Prisma.TransactionOmit

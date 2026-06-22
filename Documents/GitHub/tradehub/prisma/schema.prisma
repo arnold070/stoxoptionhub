@@ -173,10 +173,25 @@ model Strategy {
   @@map("strategies")
 }
 
+model Trader {
+  id          String       @id @default(cuid())
+  name        String
+  description String?
+  hashCode    String       @unique
+  isActive    Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  allocations Allocation[]
+
+  @@map("traders")
+}
+
 model Allocation {
   id         String           @id @default(cuid())
   userId     String
   strategyId String
+  traderId   String?
   amount     Float
   status     AllocationStatus @default(ACTIVE)
   notes      String?
@@ -185,6 +200,7 @@ model Allocation {
 
   user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   strategy Strategy @relation(fields: [strategyId], references: [id])
+  trader   Trader?  @relation(fields: [traderId], references: [id])
 
   @@map("allocations")
 }

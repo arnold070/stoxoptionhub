@@ -38,6 +38,7 @@ export type AllocationMinAggregateOutputType = {
   id: string | null
   userId: string | null
   strategyId: string | null
+  traderId: string | null
   amount: number | null
   status: $Enums.AllocationStatus | null
   notes: string | null
@@ -49,6 +50,7 @@ export type AllocationMaxAggregateOutputType = {
   id: string | null
   userId: string | null
   strategyId: string | null
+  traderId: string | null
   amount: number | null
   status: $Enums.AllocationStatus | null
   notes: string | null
@@ -60,6 +62,7 @@ export type AllocationCountAggregateOutputType = {
   id: number
   userId: number
   strategyId: number
+  traderId: number
   amount: number
   status: number
   notes: number
@@ -81,6 +84,7 @@ export type AllocationMinAggregateInputType = {
   id?: true
   userId?: true
   strategyId?: true
+  traderId?: true
   amount?: true
   status?: true
   notes?: true
@@ -92,6 +96,7 @@ export type AllocationMaxAggregateInputType = {
   id?: true
   userId?: true
   strategyId?: true
+  traderId?: true
   amount?: true
   status?: true
   notes?: true
@@ -103,6 +108,7 @@ export type AllocationCountAggregateInputType = {
   id?: true
   userId?: true
   strategyId?: true
+  traderId?: true
   amount?: true
   status?: true
   notes?: true
@@ -201,6 +207,7 @@ export type AllocationGroupByOutputType = {
   id: string
   userId: string
   strategyId: string
+  traderId: string | null
   amount: number
   status: $Enums.AllocationStatus
   notes: string | null
@@ -235,6 +242,7 @@ export type AllocationWhereInput = {
   id?: Prisma.StringFilter<"Allocation"> | string
   userId?: Prisma.StringFilter<"Allocation"> | string
   strategyId?: Prisma.StringFilter<"Allocation"> | string
+  traderId?: Prisma.StringNullableFilter<"Allocation"> | string | null
   amount?: Prisma.FloatFilter<"Allocation"> | number
   status?: Prisma.EnumAllocationStatusFilter<"Allocation"> | $Enums.AllocationStatus
   notes?: Prisma.StringNullableFilter<"Allocation"> | string | null
@@ -242,12 +250,14 @@ export type AllocationWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"Allocation"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   strategy?: Prisma.XOR<Prisma.StrategyScalarRelationFilter, Prisma.StrategyWhereInput>
+  trader?: Prisma.XOR<Prisma.TraderNullableScalarRelationFilter, Prisma.TraderWhereInput> | null
 }
 
 export type AllocationOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   strategyId?: Prisma.SortOrder
+  traderId?: Prisma.SortOrderInput | Prisma.SortOrder
   amount?: Prisma.SortOrder
   status?: Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -255,6 +265,7 @@ export type AllocationOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
   strategy?: Prisma.StrategyOrderByWithRelationInput
+  trader?: Prisma.TraderOrderByWithRelationInput
 }
 
 export type AllocationWhereUniqueInput = Prisma.AtLeast<{
@@ -264,6 +275,7 @@ export type AllocationWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.AllocationWhereInput | Prisma.AllocationWhereInput[]
   userId?: Prisma.StringFilter<"Allocation"> | string
   strategyId?: Prisma.StringFilter<"Allocation"> | string
+  traderId?: Prisma.StringNullableFilter<"Allocation"> | string | null
   amount?: Prisma.FloatFilter<"Allocation"> | number
   status?: Prisma.EnumAllocationStatusFilter<"Allocation"> | $Enums.AllocationStatus
   notes?: Prisma.StringNullableFilter<"Allocation"> | string | null
@@ -271,12 +283,14 @@ export type AllocationWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"Allocation"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   strategy?: Prisma.XOR<Prisma.StrategyScalarRelationFilter, Prisma.StrategyWhereInput>
+  trader?: Prisma.XOR<Prisma.TraderNullableScalarRelationFilter, Prisma.TraderWhereInput> | null
 }, "id">
 
 export type AllocationOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   strategyId?: Prisma.SortOrder
+  traderId?: Prisma.SortOrderInput | Prisma.SortOrder
   amount?: Prisma.SortOrder
   status?: Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -296,6 +310,7 @@ export type AllocationScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"Allocation"> | string
   userId?: Prisma.StringWithAggregatesFilter<"Allocation"> | string
   strategyId?: Prisma.StringWithAggregatesFilter<"Allocation"> | string
+  traderId?: Prisma.StringNullableWithAggregatesFilter<"Allocation"> | string | null
   amount?: Prisma.FloatWithAggregatesFilter<"Allocation"> | number
   status?: Prisma.EnumAllocationStatusWithAggregatesFilter<"Allocation"> | $Enums.AllocationStatus
   notes?: Prisma.StringNullableWithAggregatesFilter<"Allocation"> | string | null
@@ -312,12 +327,14 @@ export type AllocationCreateInput = {
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutAllocationsInput
   strategy: Prisma.StrategyCreateNestedOneWithoutAllocationsInput
+  trader?: Prisma.TraderCreateNestedOneWithoutAllocationsInput
 }
 
 export type AllocationUncheckedCreateInput = {
   id?: string
   userId: string
   strategyId: string
+  traderId?: string | null
   amount: number
   status?: $Enums.AllocationStatus
   notes?: string | null
@@ -334,12 +351,14 @@ export type AllocationUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutAllocationsNestedInput
   strategy?: Prisma.StrategyUpdateOneRequiredWithoutAllocationsNestedInput
+  trader?: Prisma.TraderUpdateOneWithoutAllocationsNestedInput
 }
 
 export type AllocationUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   strategyId?: Prisma.StringFieldUpdateOperationsInput | string
+  traderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   status?: Prisma.EnumAllocationStatusFieldUpdateOperationsInput | $Enums.AllocationStatus
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -351,6 +370,7 @@ export type AllocationCreateManyInput = {
   id?: string
   userId: string
   strategyId: string
+  traderId?: string | null
   amount: number
   status?: $Enums.AllocationStatus
   notes?: string | null
@@ -371,6 +391,7 @@ export type AllocationUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   strategyId?: Prisma.StringFieldUpdateOperationsInput | string
+  traderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   status?: Prisma.EnumAllocationStatusFieldUpdateOperationsInput | $Enums.AllocationStatus
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -392,6 +413,7 @@ export type AllocationCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   strategyId?: Prisma.SortOrder
+  traderId?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   status?: Prisma.SortOrder
   notes?: Prisma.SortOrder
@@ -407,6 +429,7 @@ export type AllocationMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   strategyId?: Prisma.SortOrder
+  traderId?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   status?: Prisma.SortOrder
   notes?: Prisma.SortOrder
@@ -418,6 +441,7 @@ export type AllocationMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   strategyId?: Prisma.SortOrder
+  traderId?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   status?: Prisma.SortOrder
   notes?: Prisma.SortOrder
@@ -513,6 +537,48 @@ export type AllocationUncheckedUpdateManyWithoutStrategyNestedInput = {
   deleteMany?: Prisma.AllocationScalarWhereInput | Prisma.AllocationScalarWhereInput[]
 }
 
+export type AllocationCreateNestedManyWithoutTraderInput = {
+  create?: Prisma.XOR<Prisma.AllocationCreateWithoutTraderInput, Prisma.AllocationUncheckedCreateWithoutTraderInput> | Prisma.AllocationCreateWithoutTraderInput[] | Prisma.AllocationUncheckedCreateWithoutTraderInput[]
+  connectOrCreate?: Prisma.AllocationCreateOrConnectWithoutTraderInput | Prisma.AllocationCreateOrConnectWithoutTraderInput[]
+  createMany?: Prisma.AllocationCreateManyTraderInputEnvelope
+  connect?: Prisma.AllocationWhereUniqueInput | Prisma.AllocationWhereUniqueInput[]
+}
+
+export type AllocationUncheckedCreateNestedManyWithoutTraderInput = {
+  create?: Prisma.XOR<Prisma.AllocationCreateWithoutTraderInput, Prisma.AllocationUncheckedCreateWithoutTraderInput> | Prisma.AllocationCreateWithoutTraderInput[] | Prisma.AllocationUncheckedCreateWithoutTraderInput[]
+  connectOrCreate?: Prisma.AllocationCreateOrConnectWithoutTraderInput | Prisma.AllocationCreateOrConnectWithoutTraderInput[]
+  createMany?: Prisma.AllocationCreateManyTraderInputEnvelope
+  connect?: Prisma.AllocationWhereUniqueInput | Prisma.AllocationWhereUniqueInput[]
+}
+
+export type AllocationUpdateManyWithoutTraderNestedInput = {
+  create?: Prisma.XOR<Prisma.AllocationCreateWithoutTraderInput, Prisma.AllocationUncheckedCreateWithoutTraderInput> | Prisma.AllocationCreateWithoutTraderInput[] | Prisma.AllocationUncheckedCreateWithoutTraderInput[]
+  connectOrCreate?: Prisma.AllocationCreateOrConnectWithoutTraderInput | Prisma.AllocationCreateOrConnectWithoutTraderInput[]
+  upsert?: Prisma.AllocationUpsertWithWhereUniqueWithoutTraderInput | Prisma.AllocationUpsertWithWhereUniqueWithoutTraderInput[]
+  createMany?: Prisma.AllocationCreateManyTraderInputEnvelope
+  set?: Prisma.AllocationWhereUniqueInput | Prisma.AllocationWhereUniqueInput[]
+  disconnect?: Prisma.AllocationWhereUniqueInput | Prisma.AllocationWhereUniqueInput[]
+  delete?: Prisma.AllocationWhereUniqueInput | Prisma.AllocationWhereUniqueInput[]
+  connect?: Prisma.AllocationWhereUniqueInput | Prisma.AllocationWhereUniqueInput[]
+  update?: Prisma.AllocationUpdateWithWhereUniqueWithoutTraderInput | Prisma.AllocationUpdateWithWhereUniqueWithoutTraderInput[]
+  updateMany?: Prisma.AllocationUpdateManyWithWhereWithoutTraderInput | Prisma.AllocationUpdateManyWithWhereWithoutTraderInput[]
+  deleteMany?: Prisma.AllocationScalarWhereInput | Prisma.AllocationScalarWhereInput[]
+}
+
+export type AllocationUncheckedUpdateManyWithoutTraderNestedInput = {
+  create?: Prisma.XOR<Prisma.AllocationCreateWithoutTraderInput, Prisma.AllocationUncheckedCreateWithoutTraderInput> | Prisma.AllocationCreateWithoutTraderInput[] | Prisma.AllocationUncheckedCreateWithoutTraderInput[]
+  connectOrCreate?: Prisma.AllocationCreateOrConnectWithoutTraderInput | Prisma.AllocationCreateOrConnectWithoutTraderInput[]
+  upsert?: Prisma.AllocationUpsertWithWhereUniqueWithoutTraderInput | Prisma.AllocationUpsertWithWhereUniqueWithoutTraderInput[]
+  createMany?: Prisma.AllocationCreateManyTraderInputEnvelope
+  set?: Prisma.AllocationWhereUniqueInput | Prisma.AllocationWhereUniqueInput[]
+  disconnect?: Prisma.AllocationWhereUniqueInput | Prisma.AllocationWhereUniqueInput[]
+  delete?: Prisma.AllocationWhereUniqueInput | Prisma.AllocationWhereUniqueInput[]
+  connect?: Prisma.AllocationWhereUniqueInput | Prisma.AllocationWhereUniqueInput[]
+  update?: Prisma.AllocationUpdateWithWhereUniqueWithoutTraderInput | Prisma.AllocationUpdateWithWhereUniqueWithoutTraderInput[]
+  updateMany?: Prisma.AllocationUpdateManyWithWhereWithoutTraderInput | Prisma.AllocationUpdateManyWithWhereWithoutTraderInput[]
+  deleteMany?: Prisma.AllocationScalarWhereInput | Prisma.AllocationScalarWhereInput[]
+}
+
 export type EnumAllocationStatusFieldUpdateOperationsInput = {
   set?: $Enums.AllocationStatus
 }
@@ -525,11 +591,13 @@ export type AllocationCreateWithoutUserInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   strategy: Prisma.StrategyCreateNestedOneWithoutAllocationsInput
+  trader?: Prisma.TraderCreateNestedOneWithoutAllocationsInput
 }
 
 export type AllocationUncheckedCreateWithoutUserInput = {
   id?: string
   strategyId: string
+  traderId?: string | null
   amount: number
   status?: $Enums.AllocationStatus
   notes?: string | null
@@ -569,6 +637,7 @@ export type AllocationScalarWhereInput = {
   id?: Prisma.StringFilter<"Allocation"> | string
   userId?: Prisma.StringFilter<"Allocation"> | string
   strategyId?: Prisma.StringFilter<"Allocation"> | string
+  traderId?: Prisma.StringNullableFilter<"Allocation"> | string | null
   amount?: Prisma.FloatFilter<"Allocation"> | number
   status?: Prisma.EnumAllocationStatusFilter<"Allocation"> | $Enums.AllocationStatus
   notes?: Prisma.StringNullableFilter<"Allocation"> | string | null
@@ -584,11 +653,13 @@ export type AllocationCreateWithoutStrategyInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutAllocationsInput
+  trader?: Prisma.TraderCreateNestedOneWithoutAllocationsInput
 }
 
 export type AllocationUncheckedCreateWithoutStrategyInput = {
   id?: string
   userId: string
+  traderId?: string | null
   amount: number
   status?: $Enums.AllocationStatus
   notes?: string | null
@@ -621,9 +692,57 @@ export type AllocationUpdateManyWithWhereWithoutStrategyInput = {
   data: Prisma.XOR<Prisma.AllocationUpdateManyMutationInput, Prisma.AllocationUncheckedUpdateManyWithoutStrategyInput>
 }
 
+export type AllocationCreateWithoutTraderInput = {
+  id?: string
+  amount: number
+  status?: $Enums.AllocationStatus
+  notes?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutAllocationsInput
+  strategy: Prisma.StrategyCreateNestedOneWithoutAllocationsInput
+}
+
+export type AllocationUncheckedCreateWithoutTraderInput = {
+  id?: string
+  userId: string
+  strategyId: string
+  amount: number
+  status?: $Enums.AllocationStatus
+  notes?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type AllocationCreateOrConnectWithoutTraderInput = {
+  where: Prisma.AllocationWhereUniqueInput
+  create: Prisma.XOR<Prisma.AllocationCreateWithoutTraderInput, Prisma.AllocationUncheckedCreateWithoutTraderInput>
+}
+
+export type AllocationCreateManyTraderInputEnvelope = {
+  data: Prisma.AllocationCreateManyTraderInput | Prisma.AllocationCreateManyTraderInput[]
+}
+
+export type AllocationUpsertWithWhereUniqueWithoutTraderInput = {
+  where: Prisma.AllocationWhereUniqueInput
+  update: Prisma.XOR<Prisma.AllocationUpdateWithoutTraderInput, Prisma.AllocationUncheckedUpdateWithoutTraderInput>
+  create: Prisma.XOR<Prisma.AllocationCreateWithoutTraderInput, Prisma.AllocationUncheckedCreateWithoutTraderInput>
+}
+
+export type AllocationUpdateWithWhereUniqueWithoutTraderInput = {
+  where: Prisma.AllocationWhereUniqueInput
+  data: Prisma.XOR<Prisma.AllocationUpdateWithoutTraderInput, Prisma.AllocationUncheckedUpdateWithoutTraderInput>
+}
+
+export type AllocationUpdateManyWithWhereWithoutTraderInput = {
+  where: Prisma.AllocationScalarWhereInput
+  data: Prisma.XOR<Prisma.AllocationUpdateManyMutationInput, Prisma.AllocationUncheckedUpdateManyWithoutTraderInput>
+}
+
 export type AllocationCreateManyUserInput = {
   id?: string
   strategyId: string
+  traderId?: string | null
   amount: number
   status?: $Enums.AllocationStatus
   notes?: string | null
@@ -639,11 +758,13 @@ export type AllocationUpdateWithoutUserInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   strategy?: Prisma.StrategyUpdateOneRequiredWithoutAllocationsNestedInput
+  trader?: Prisma.TraderUpdateOneWithoutAllocationsNestedInput
 }
 
 export type AllocationUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   strategyId?: Prisma.StringFieldUpdateOperationsInput | string
+  traderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   status?: Prisma.EnumAllocationStatusFieldUpdateOperationsInput | $Enums.AllocationStatus
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -654,6 +775,7 @@ export type AllocationUncheckedUpdateWithoutUserInput = {
 export type AllocationUncheckedUpdateManyWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   strategyId?: Prisma.StringFieldUpdateOperationsInput | string
+  traderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   status?: Prisma.EnumAllocationStatusFieldUpdateOperationsInput | $Enums.AllocationStatus
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -664,6 +786,7 @@ export type AllocationUncheckedUpdateManyWithoutUserInput = {
 export type AllocationCreateManyStrategyInput = {
   id?: string
   userId: string
+  traderId?: string | null
   amount: number
   status?: $Enums.AllocationStatus
   notes?: string | null
@@ -679,11 +802,13 @@ export type AllocationUpdateWithoutStrategyInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutAllocationsNestedInput
+  trader?: Prisma.TraderUpdateOneWithoutAllocationsNestedInput
 }
 
 export type AllocationUncheckedUpdateWithoutStrategyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
+  traderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   status?: Prisma.EnumAllocationStatusFieldUpdateOperationsInput | $Enums.AllocationStatus
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -694,6 +819,51 @@ export type AllocationUncheckedUpdateWithoutStrategyInput = {
 export type AllocationUncheckedUpdateManyWithoutStrategyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
+  traderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  status?: Prisma.EnumAllocationStatusFieldUpdateOperationsInput | $Enums.AllocationStatus
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type AllocationCreateManyTraderInput = {
+  id?: string
+  userId: string
+  strategyId: string
+  amount: number
+  status?: $Enums.AllocationStatus
+  notes?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type AllocationUpdateWithoutTraderInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  status?: Prisma.EnumAllocationStatusFieldUpdateOperationsInput | $Enums.AllocationStatus
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutAllocationsNestedInput
+  strategy?: Prisma.StrategyUpdateOneRequiredWithoutAllocationsNestedInput
+}
+
+export type AllocationUncheckedUpdateWithoutTraderInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  strategyId?: Prisma.StringFieldUpdateOperationsInput | string
+  amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  status?: Prisma.EnumAllocationStatusFieldUpdateOperationsInput | $Enums.AllocationStatus
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type AllocationUncheckedUpdateManyWithoutTraderInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  strategyId?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
   status?: Prisma.EnumAllocationStatusFieldUpdateOperationsInput | $Enums.AllocationStatus
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -707,6 +877,7 @@ export type AllocationSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   id?: boolean
   userId?: boolean
   strategyId?: boolean
+  traderId?: boolean
   amount?: boolean
   status?: boolean
   notes?: boolean
@@ -714,12 +885,14 @@ export type AllocationSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   strategy?: boolean | Prisma.StrategyDefaultArgs<ExtArgs>
+  trader?: boolean | Prisma.Allocation$traderArgs<ExtArgs>
 }, ExtArgs["result"]["allocation"]>
 
 export type AllocationSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   userId?: boolean
   strategyId?: boolean
+  traderId?: boolean
   amount?: boolean
   status?: boolean
   notes?: boolean
@@ -727,12 +900,14 @@ export type AllocationSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   strategy?: boolean | Prisma.StrategyDefaultArgs<ExtArgs>
+  trader?: boolean | Prisma.Allocation$traderArgs<ExtArgs>
 }, ExtArgs["result"]["allocation"]>
 
 export type AllocationSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   userId?: boolean
   strategyId?: boolean
+  traderId?: boolean
   amount?: boolean
   status?: boolean
   notes?: boolean
@@ -740,12 +915,14 @@ export type AllocationSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   strategy?: boolean | Prisma.StrategyDefaultArgs<ExtArgs>
+  trader?: boolean | Prisma.Allocation$traderArgs<ExtArgs>
 }, ExtArgs["result"]["allocation"]>
 
 export type AllocationSelectScalar = {
   id?: boolean
   userId?: boolean
   strategyId?: boolean
+  traderId?: boolean
   amount?: boolean
   status?: boolean
   notes?: boolean
@@ -753,18 +930,21 @@ export type AllocationSelectScalar = {
   updatedAt?: boolean
 }
 
-export type AllocationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "strategyId" | "amount" | "status" | "notes" | "createdAt" | "updatedAt", ExtArgs["result"]["allocation"]>
+export type AllocationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "strategyId" | "traderId" | "amount" | "status" | "notes" | "createdAt" | "updatedAt", ExtArgs["result"]["allocation"]>
 export type AllocationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   strategy?: boolean | Prisma.StrategyDefaultArgs<ExtArgs>
+  trader?: boolean | Prisma.Allocation$traderArgs<ExtArgs>
 }
 export type AllocationIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   strategy?: boolean | Prisma.StrategyDefaultArgs<ExtArgs>
+  trader?: boolean | Prisma.Allocation$traderArgs<ExtArgs>
 }
 export type AllocationIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   strategy?: boolean | Prisma.StrategyDefaultArgs<ExtArgs>
+  trader?: boolean | Prisma.Allocation$traderArgs<ExtArgs>
 }
 
 export type $AllocationPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -772,11 +952,13 @@ export type $AllocationPayload<ExtArgs extends runtime.Types.Extensions.Internal
   objects: {
     user: Prisma.$UserPayload<ExtArgs>
     strategy: Prisma.$StrategyPayload<ExtArgs>
+    trader: Prisma.$TraderPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     userId: string
     strategyId: string
+    traderId: string | null
     amount: number
     status: $Enums.AllocationStatus
     notes: string | null
@@ -1178,6 +1360,7 @@ export interface Prisma__AllocationClient<T, Null = never, ExtArgs extends runti
   readonly [Symbol.toStringTag]: "PrismaPromise"
   user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   strategy<T extends Prisma.StrategyDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.StrategyDefaultArgs<ExtArgs>>): Prisma.Prisma__StrategyClient<runtime.Types.Result.GetResult<Prisma.$StrategyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  trader<T extends Prisma.Allocation$traderArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Allocation$traderArgs<ExtArgs>>): Prisma.Prisma__TraderClient<runtime.Types.Result.GetResult<Prisma.$TraderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1210,6 +1393,7 @@ export interface AllocationFieldRefs {
   readonly id: Prisma.FieldRef<"Allocation", 'String'>
   readonly userId: Prisma.FieldRef<"Allocation", 'String'>
   readonly strategyId: Prisma.FieldRef<"Allocation", 'String'>
+  readonly traderId: Prisma.FieldRef<"Allocation", 'String'>
   readonly amount: Prisma.FieldRef<"Allocation", 'Float'>
   readonly status: Prisma.FieldRef<"Allocation", 'AllocationStatus'>
   readonly notes: Prisma.FieldRef<"Allocation", 'String'>
@@ -1611,6 +1795,25 @@ export type AllocationDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.In
    * Limit how many Allocations to delete.
    */
   limit?: number
+}
+
+/**
+ * Allocation.trader
+ */
+export type Allocation$traderArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Trader
+   */
+  select?: Prisma.TraderSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Trader
+   */
+  omit?: Prisma.TraderOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TraderInclude<ExtArgs> | null
+  where?: Prisma.TraderWhereInput
 }
 
 /**

@@ -55,6 +55,7 @@ export const ModelName = {
   Plan: 'Plan',
   Membership: 'Membership',
   Strategy: 'Strategy',
+  Trader: 'Trader',
   Allocation: 'Allocation',
   Wallet: 'Wallet',
   Transaction: 'Transaction',
@@ -147,6 +148,8 @@ export const StrategyScalarFieldEnum = {
   tier: 'tier',
   minAmount: 'minAmount',
   maxAmount: 'maxAmount',
+  roiPercent: 'roiPercent',
+  durationDays: 'durationDays',
   performance: 'performance',
   isActive: 'isActive',
   managedBy: 'managedBy',
@@ -157,10 +160,24 @@ export const StrategyScalarFieldEnum = {
 export type StrategyScalarFieldEnum = (typeof StrategyScalarFieldEnum)[keyof typeof StrategyScalarFieldEnum]
 
 
+export const TraderScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  hashCode: 'hashCode',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TraderScalarFieldEnum = (typeof TraderScalarFieldEnum)[keyof typeof TraderScalarFieldEnum]
+
+
 export const AllocationScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
   strategyId: 'strategyId',
+  traderId: 'traderId',
   amount: 'amount',
   status: 'status',
   notes: 'notes',

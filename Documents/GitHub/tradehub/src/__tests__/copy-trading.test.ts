@@ -69,7 +69,7 @@ describe("allocateToStrategy", () => {
     vi.mocked(prisma.wallet.update).mockResolvedValue({ id: "w1", balance: 500 } as any);
     vi.mocked(prisma.transaction.create).mockResolvedValue({ id: "t1" } as any);
 
-    const result = await allocateToStrategy({ strategyId: "s1", amount: 500 });
+    const result = await allocateToStrategy({ strategyId: "s1", amount: 500, hashCode: "TEST-CODE" });
     expect(result.success).toBe(true);
     expect(prisma.allocation.create).toHaveBeenCalledOnce();
     expect(prisma.wallet.update).toHaveBeenCalledWith(
@@ -85,7 +85,7 @@ describe("allocateToStrategy", () => {
     vi.mocked(prisma.wallet.findUnique).mockResolvedValue({ id: "w1", balance: 1000 } as any);
     vi.mocked(prisma.allocation.findFirst).mockResolvedValue(null);
 
-    const result = await allocateToStrategy({ strategyId: "s1", amount: 50 });
+    const result = await allocateToStrategy({ strategyId: "s1", amount: 50, hashCode: "TEST-CODE" });
     expect(result.success).toBe(false);
     if (result.success) return;
     expect(result.error).toMatch(/minimum/i);
@@ -99,7 +99,7 @@ describe("allocateToStrategy", () => {
     vi.mocked(prisma.wallet.findUnique).mockResolvedValue({ id: "w1", balance: 50 } as any);
     vi.mocked(prisma.allocation.findFirst).mockResolvedValue(null);
 
-    const result = await allocateToStrategy({ strategyId: "s1", amount: 200 });
+    const result = await allocateToStrategy({ strategyId: "s1", amount: 200, hashCode: "TEST-CODE" });
     expect(result.success).toBe(false);
     if (result.success) return;
     expect(result.error).toMatch(/insufficient/i);
@@ -107,7 +107,7 @@ describe("allocateToStrategy", () => {
 
   it("rejects when unauthenticated", async () => {
     vi.mocked(getSession).mockResolvedValue(null);
-    const result = await allocateToStrategy({ strategyId: "s1", amount: 200 });
+    const result = await allocateToStrategy({ strategyId: "s1", amount: 200, hashCode: "TEST-CODE" });
     expect(result.success).toBe(false);
   });
 });

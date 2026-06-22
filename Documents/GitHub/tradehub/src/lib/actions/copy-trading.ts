@@ -27,27 +27,37 @@ export async function getUserAllocations() {
 export async function allocateToStrategy({
   strategyId,
   amount,
+  hashCode,
 }: {
   strategyId: string;
   amount: number;
+  hashCode: string;
 }): Promise<ActionResult> {
   const session = await getSession();
   if (!session) return { success: false, error: "Not authenticated" };
 
+  const trimmedCode = (hashCode ?? "").trim();
+  if (!trimmedCode) return { success: false, error: "Trading code is required." };
+
+  const trader = await prisma.trader.findUnique({ where: { hashCode: trimmedCode } });
+  if (!trader || !trader.isActive) {
+    return { success: false, error: "Invalid trading code. Contact your admin for a valid code." };
+  }
+
   const strategy = await prisma.strategy.findUnique({ where: { id: strategyId } });
-  if (!strategy || !strategy.isActive) return { success: false, error: "Strategy not found" };
+  if (!strategy || !strategy.isActive) return { success: false, error: "Plan not found" };
 
   if (amount < strategy.minAmount) {
     return {
       success: false,
-      error: `Amount below minimum allocation of ${strategy.minAmount}`,
+      error: `Amount below the minimum of $${strategy.minAmount.toLocaleString()}`,
     };
   }
 
   if (strategy.maxAmount && amount > strategy.maxAmount) {
     return {
       success: false,
-      error: `Amount exceeds maximum allocation of ${strategy.maxAmount}`,
+      error: `Amount exceeds the maximum of $${strategy.maxAmount.toLocaleString()}`,
     };
   }
 
@@ -60,6 +70,7 @@ export async function allocateToStrategy({
         data: {
           userId: session.userId,
           strategyId,
+          traderId: trader.id,
           amount,
           status: "ACTIVE",
         },

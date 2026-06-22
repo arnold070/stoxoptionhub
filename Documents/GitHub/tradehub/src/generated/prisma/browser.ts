@@ -38,6 +38,11 @@ export type Membership = Prisma.MembershipModel
  */
 export type Strategy = Prisma.StrategyModel
 /**
+ * Model Trader
+ * 
+ */
+export type Trader = Prisma.TraderModel
+/**
  * Model Allocation
  * 
  */

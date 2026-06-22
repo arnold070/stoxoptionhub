@@ -1208,3 +1208,62 @@ export async function getDashboardActivity() {
     totalBalance: walletSum._sum.balance ?? 0,
   };
 }
+
+// ─── Traders ────────────────────────────────────────────────────────────────
+
+function generateHashCode(): string {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let code = "TRD-";
+  for (let i = 0; i < 8; i++) code += chars[Math.floor(Math.random() * chars.length)];
+  return code;
+}
+
+export async function getTraders() {
+  const session = await requireAdmin();
+  if (!session) return [];
+  return prisma.trader.findMany({
+    orderBy: { createdAt: "desc" },
+    include: { _count: { select: { allocations: { where: { status: "ACTIVE" } } } } },
+  });
+}
+
+export async function createTrader(data: {
+  name: string;
+  description?: string;
+  hashCode?: string;
+}): Promise<ActionResult> {
+  const session = await requireAdmin();
+  if (!session) return { success: false, error: "Unauthorized" };
+
+  const code = (data.hashCode ?? "").trim() || generateHashCode();
+
+  try {
+    await prisma.trader.create({
+      data: {
+        name: data.name,
+        description: data.description || null,
+        hashCode: code,
+        isActive: true,
+      },
+    });
+    return { success: true };
+  } catch {
+    return { success: false, error: "Hash code already in use. Choose a different one." };
+  }
+}
+
+export async function toggleTrader(id: string): Promise<ActionResult> {
+  const session = await requireAdmin();
+  if (!session) return { success: false, error: "Unauthorized" };
+  const trader = await prisma.trader.findUnique({ where: { id } });
+  if (!trader) return { success: false, error: "Trader not found" };
+  await prisma.trader.update({ where: { id }, data: { isActive: !trader.isActive } });
+  return { success: true };
+}
+
+export async function deleteTrader(id: string): Promise<ActionResult> {
+  const session = await requireAdmin();
+  if (!session) return { success: false, error: "Unauthorized" };
+  await prisma.trader.delete({ where: { id } });
+  return { success: true };
+}
