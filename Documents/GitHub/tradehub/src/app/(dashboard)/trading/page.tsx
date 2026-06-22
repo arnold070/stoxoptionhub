@@ -170,8 +170,10 @@ export default async function CopyTradingPage({
                       type="number"
                       min={strategy.minAmount}
                       step="0.01"
-                      placeholder={`Min ${formatCurrency(strategy.minAmount)}`}
+                      defaultValue={strategy.minAmount}
                       required
+                      aria-label={`Allocation amount for ${strategy.name}`}
+                      placeholder={`Min ${formatCurrency(strategy.minAmount)}`}
                       className="flex-1 px-3 py-2 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg text-[12px] text-white placeholder:text-[#444] outline-none focus:border-[#f0b429]/50"
                     />
                     <button type="submit" className="px-4 py-2 bg-[#f0b429] hover:bg-[#e0a424] text-black text-[12px] font-bold rounded-lg uppercase tracking-wide transition-colors">
