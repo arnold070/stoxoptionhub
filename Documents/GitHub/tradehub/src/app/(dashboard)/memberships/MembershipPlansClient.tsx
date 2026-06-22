@@ -69,7 +69,7 @@ export default function MembershipPlansClient({ plans, activeMembershipPlanId, w
         setTimeout(() => {
           setSelected(null);
           router.refresh();
-        }, 4000);
+        }, 10000);
       }
     });
   }
