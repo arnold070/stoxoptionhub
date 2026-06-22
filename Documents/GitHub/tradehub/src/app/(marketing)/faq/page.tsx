@@ -37,7 +37,7 @@ const categories = [
       },
       {
         q: "What is the minimum deposit?",
-        a: "The minimum deposit is $10 USDT equivalent. The platform supports major networks including Ethereum, Binance Smart Chain, and TRON for USDT transfers.",
+        a: "The minimum deposit is $1,000 USDT equivalent. The platform supports major networks including Ethereum, Binance Smart Chain, and TRON for USDT transfers.",
       },
       {
         q: "How long does deposit approval take?",
@@ -147,7 +147,7 @@ const categories = [
       },
       {
         q: "What is the minimum withdrawal?",
-        a: "The minimum withdrawal amount is $20 USDT equivalent.",
+        a: "The minimum withdrawal amount is $1,000 USDT equivalent.",
       },
       {
         q: "How long do withdrawals take?",

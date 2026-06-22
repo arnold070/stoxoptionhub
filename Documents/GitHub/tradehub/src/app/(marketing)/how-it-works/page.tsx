@@ -31,7 +31,7 @@ const steps = [
       "Supports major crypto networks",
       "Submit TXID + network + amount",
       "Deposit stays PENDING until approved",
-      "Minimum deposit: $10 USDT equivalent",
+      "Minimum deposit: $1,000 USDT equivalent",
     ],
     status: "Step 1 of 2",
   },
@@ -109,7 +109,7 @@ const steps = [
     details: [
       "Withdrawal to crypto address",
       "Admin review before processing",
-      "Minimum withdrawal: $20 USDT",
+      "Minimum withdrawal: $1,000 USDT",
       "Notification on approval",
     ],
     status: "On request",

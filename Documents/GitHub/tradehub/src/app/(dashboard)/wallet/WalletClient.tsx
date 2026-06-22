@@ -255,7 +255,7 @@ export default function WalletClient({ wallet, transactions, stats, depositAddre
               {/* Manual deposit confirmation form */}
               <form onSubmit={handleDeposit} className="space-y-3 border-t border-[#1e1e1e] pt-4">
                 <div className="text-[10px] text-[#555] uppercase tracking-wider">After sending — confirm your deposit</div>
-                <input name="amount" type="number" min="10" step="0.01" required placeholder="Amount sent (min $10)"
+                <input name="amount" type="number" min="1000" step="0.01" required placeholder="Amount sent (min $1,000)"
                   className="w-full px-3 py-2 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg text-[12px] text-white placeholder:text-[#444] outline-none focus:border-[#f0b429]/50" />
                 <input name="network" type="hidden" value={network} />
                 <input name="txHash" type="text" required placeholder="Transaction Hash / TXID"
@@ -275,11 +275,11 @@ export default function WalletClient({ wallet, transactions, stats, depositAddre
                 <input
                   name="amount"
                   type="number"
-                  min="20"
+                  min="1000"
                   max={wallet?.balance}
                   step="0.01"
                   required
-                  placeholder={`Min $20 — Available: ${formatCurrency(wallet?.balance ?? 0)}`}
+                  placeholder={`Min $1,000 — Available: ${formatCurrency(wallet?.balance ?? 0)}`}
                   className="w-full px-3 py-2.5 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg text-[12px] text-white placeholder:text-[#444] outline-none focus:border-[#f0b429]/50"
                 />
               </div>
