@@ -85,7 +85,7 @@ describe("purchaseMembership", () => {
     vi.mocked(prisma.wallet.update).mockResolvedValue({ id: "w1", balance: 150 } as any);
     vi.mocked(prisma.transaction.create).mockResolvedValue({ id: "t1" } as any);
 
-    const result = await purchaseMembership({ planId: "p1" });
+    const result = await purchaseMembership({ planId: "p1", hashCode: "TEST-CODE" });
     expect(result.success).toBe(true);
     expect(prisma.wallet.update).toHaveBeenCalledWith(
       expect.objectContaining({ data: { balance: { decrement: 50 } } })
@@ -102,7 +102,7 @@ describe("purchaseMembership", () => {
       id: "w1", userId: "u1", balance: 50,
     } as any);
 
-    const result = await purchaseMembership({ planId: "p1" });
+    const result = await purchaseMembership({ planId: "p1", hashCode: "TEST-CODE" });
     expect(result.success).toBe(false);
     if (result.success) return;
     expect(result.error).toMatch(/insufficient/i);
@@ -117,7 +117,7 @@ describe("purchaseMembership", () => {
       id: "m1", status: "ACTIVE",
     } as any);
 
-    const result = await purchaseMembership({ planId: "p1" });
+    const result = await purchaseMembership({ planId: "p1", hashCode: "TEST-CODE" });
     expect(result.success).toBe(false);
     if (result.success) return;
     expect(result.error).toMatch(/already/i);
@@ -125,7 +125,7 @@ describe("purchaseMembership", () => {
 
   it("fails when unauthenticated", async () => {
     vi.mocked(getSession).mockResolvedValue(null);
-    const result = await purchaseMembership({ planId: "p1" });
+    const result = await purchaseMembership({ planId: "p1", hashCode: "TEST-CODE" });
     expect(result.success).toBe(false);
     if (result.success) return;
     expect(result.error).toMatch(/authenticated/i);

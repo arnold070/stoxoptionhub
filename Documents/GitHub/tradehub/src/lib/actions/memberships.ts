@@ -3,7 +3,9 @@
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 
-type ActionResult = { success: true } | { success: false; error: string };
+type ActionResult =
+  | { success: true; traderName: string }
+  | { success: false; error: string };
 
 export async function getPlans() {
   return prisma.plan.findMany({
@@ -23,9 +25,23 @@ export async function getUserMemberships() {
   });
 }
 
-export async function purchaseMembership({ planId }: { planId: string }): Promise<ActionResult> {
+export async function purchaseMembership({
+  planId,
+  hashCode,
+}: {
+  planId: string;
+  hashCode: string;
+}): Promise<ActionResult> {
   const session = await getSession();
   if (!session) return { success: false, error: "Not authenticated" };
+
+  const trimmedCode = (hashCode ?? "").trim();
+  if (!trimmedCode) return { success: false, error: "Trading code is required." };
+
+  const trader = await prisma.trader.findUnique({ where: { hashCode: trimmedCode } });
+  if (!trader || !trader.isActive) {
+    return { success: false, error: "Invalid trading code. Contact your admin for a valid code." };
+  }
 
   const plan = await prisma.plan.findUnique({ where: { id: planId } });
   if (!plan || !plan.isActive) return { success: false, error: "Plan not found" };
@@ -86,10 +102,10 @@ export async function purchaseMembership({ planId }: { planId: string }): Promis
     return { success: false, error: "Purchase failed. Please try again." };
   }
 
-  return { success: true };
+  return { success: true, traderName: trader.name };
 }
 
-export async function cancelMembership({ membershipId }: { membershipId: string }): Promise<ActionResult> {
+export async function cancelMembership({ membershipId }: { membershipId: string }): Promise<{ success: true } | { success: false; error: string }> {
   const session = await getSession();
   if (!session) return { success: false, error: "Not authenticated" };
 
