@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "@/lib/actions/auth";
 import { getStrategies, createStrategy, updateStrategy, deleteStrategy } from "@/lib/actions/admin";
 import { formatCurrency, formatDate } from "@/lib/utils";
@@ -22,8 +23,8 @@ export default async function AdminStrategiesPage() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-white">Copy Trading Strategies</h1>
-        <p className="text-[13px] text-[#555] mt-1">Manage strategies users can allocate funds to. Performance figures are market-dependent.</p>
+        <h1 className="text-2xl font-bold text-white">Copy Trading Plans</h1>
+        <p className="text-[13px] text-[#555] mt-1">Create and manage plans users can subscribe to. All performance figures are market-dependent.</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -31,22 +32,26 @@ export default async function AdminStrategiesPage() {
         <div className="bg-[#111] rounded-xl border border-[#1e1e1e] p-5">
           <div className="flex items-center gap-2 mb-5 pb-4 border-b border-[#1e1e1e]">
             <Plus size={14} className="text-[#f0b429]" />
-            <h2 className="font-semibold text-white text-[14px]">New Strategy</h2>
+            <h2 className="font-semibold text-white text-[14px]">New Plan</h2>
           </div>
           <form action={async (fd: FormData) => {
             "use server";
             await createStrategy({
-              name: fd.get("name") as string,
-              description: fd.get("description") as string,
-              tier: fd.get("tier") as StrategyTier,
-              minAmount: Number(fd.get("minAmount")),
-              maxAmount: fd.get("maxAmount") ? Number(fd.get("maxAmount")) : undefined,
-              performance: fd.get("performance") ? Number(fd.get("performance")) : 0,
-              managedBy: fd.get("managedBy") as string || undefined,
+              name:         fd.get("name") as string,
+              description:  fd.get("description") as string,
+              tier:         fd.get("tier") as StrategyTier,
+              minAmount:    Number(fd.get("minAmount")),
+              maxAmount:    fd.get("maxAmount") ? Number(fd.get("maxAmount")) : undefined,
+              roiPercent:   Number(fd.get("roiPercent") || 0),
+              durationDays: Number(fd.get("durationDays") || 30),
+              performance:  Number(fd.get("performance") || 0),
+              managedBy:    (fd.get("managedBy") as string) || undefined,
             });
+            revalidatePath("/admin/strategies");
+            revalidatePath("/trading");
           }} className="space-y-3">
             <div>
-              <label className="text-[11px] text-[#666] uppercase tracking-wider block mb-1">Strategy Name *</label>
+              <label className="text-[11px] text-[#666] uppercase tracking-wider block mb-1">Plan Name *</label>
               <input name="name" required placeholder="e.g. Momentum Pro" className="w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-3 py-2 text-[13px] text-white placeholder-[#444] outline-none focus:border-[#f0b429]/50" />
             </div>
             <div>
@@ -55,7 +60,7 @@ export default async function AdminStrategiesPage() {
             </div>
             <div>
               <label className="text-[11px] text-[#666] uppercase tracking-wider block mb-1">Tier *</label>
-              <select name="tier" required className="w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-3 py-2 text-[13px] text-white outline-none focus:border-[#f0b429]/50">
+              <select name="tier" required aria-label="Tier" className="w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-3 py-2 text-[13px] text-white outline-none focus:border-[#f0b429]/50">
                 <option value="">Select tier</option>
                 {(["BRONZE", "SILVER", "GOLD", "PLATINUM"] as StrategyTier[]).map((t) => (
                   <option key={t} value={t}>{t}</option>
@@ -64,12 +69,22 @@ export default async function AdminStrategiesPage() {
             </div>
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <label className="text-[11px] text-[#666] uppercase tracking-wider block mb-1">Min Amount *</label>
-                <input name="minAmount" type="number" min="0" step="0.01" required placeholder="100" className="w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-3 py-2 text-[13px] text-white placeholder-[#444] outline-none focus:border-[#f0b429]/50" />
+                <label className="text-[11px] text-[#666] uppercase tracking-wider block mb-1">Min Investment *</label>
+                <input name="minAmount" type="number" min="0" step="0.01" required placeholder="1000" className="w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-3 py-2 text-[13px] text-white placeholder-[#444] outline-none focus:border-[#f0b429]/50" />
               </div>
               <div>
-                <label className="text-[11px] text-[#666] uppercase tracking-wider block mb-1">Max Amount</label>
+                <label className="text-[11px] text-[#666] uppercase tracking-wider block mb-1">Max Investment</label>
                 <input name="maxAmount" type="number" min="0" step="0.01" placeholder="Unlimited" className="w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-3 py-2 text-[13px] text-white placeholder-[#444] outline-none focus:border-[#f0b429]/50" />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="text-[11px] text-[#666] uppercase tracking-wider block mb-1">% Profit (ROI)</label>
+                <input name="roiPercent" type="number" step="0.01" placeholder="0.00" className="w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-3 py-2 text-[13px] text-white placeholder-[#444] outline-none focus:border-[#f0b429]/50" />
+              </div>
+              <div>
+                <label className="text-[11px] text-[#666] uppercase tracking-wider block mb-1">Duration (Days)</label>
+                <input name="durationDays" type="number" min="1" step="1" placeholder="30" className="w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-3 py-2 text-[13px] text-white placeholder-[#444] outline-none focus:border-[#f0b429]/50" />
               </div>
             </div>
             <div>
@@ -80,19 +95,19 @@ export default async function AdminStrategiesPage() {
               <label className="text-[11px] text-[#666] uppercase tracking-wider block mb-1">Managed By</label>
               <input name="managedBy" placeholder="Trader name / team" className="w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-3 py-2 text-[13px] text-white placeholder-[#444] outline-none focus:border-[#f0b429]/50" />
             </div>
-            <p className="text-[10px] text-[#444] leading-relaxed">Past performance does not guarantee future results. All investing involves risk.</p>
+            <p className="text-[10px] text-[#444] leading-relaxed">Past performance does not guarantee future results. All investing involves market risk.</p>
             <button type="submit" className="w-full py-2 bg-[#f0b429] hover:bg-[#e0a424] rounded-lg text-[13px] font-bold text-black transition-colors">
-              Create Strategy
+              Create Plan
             </button>
           </form>
         </div>
 
-        {/* Strategies list */}
+        {/* Plans list */}
         <div className="lg:col-span-2 space-y-3">
           {strategies.length === 0 && (
             <div className="bg-[#111] rounded-xl border border-[#1e1e1e] p-10 text-center">
               <TrendingUp size={28} className="text-[#333] mx-auto mb-3" />
-              <p className="text-[#555] text-[13px]">No strategies yet</p>
+              <p className="text-[#555] text-[13px]">No plans yet — create one using the form.</p>
             </div>
           )}
           {strategies.map((s) => (
@@ -106,20 +121,25 @@ export default async function AdminStrategiesPage() {
                   </div>
                   <p className="text-[12px] text-[#666]">{s.description}</p>
                 </div>
-                <div className="text-right shrink-0 ml-4">
-                  <p className="text-[16px] font-bold text-[#22c55e]">{s.performance}%</p>
-                  <p className="text-[10px] text-[#555]">historical</p>
+                <div className="text-right shrink-0 ml-4 space-y-0.5">
+                  <p className="text-[16px] font-bold text-[#22c55e]">{(s as any).roiPercent ?? 0}% ROI</p>
+                  <p className="text-[11px] text-[#555]">{(s as any).durationDays ?? 30}d duration</p>
                 </div>
               </div>
               <div className="flex flex-wrap gap-3 text-[11px] text-[#555] mb-4">
                 <span>Min: {formatCurrency(s.minAmount)}</span>
                 <span>Max: {s.maxAmount ? formatCurrency(s.maxAmount) : "Unlimited"}</span>
-                <span>{(s as any)._count?.allocations ?? 0} allocations</span>
+                <span>{(s as any)._count?.allocations ?? 0} subscribers</span>
                 {s.managedBy && <span>By: {s.managedBy}</span>}
                 <span>Created {formatDate(s.createdAt)}</span>
               </div>
               <div className="flex gap-2">
-                <form action={async () => { "use server"; await updateStrategy(s.id, { isActive: !s.isActive }); }}>
+                <form action={async () => {
+                  "use server";
+                  await updateStrategy(s.id, { isActive: !s.isActive });
+                  revalidatePath("/admin/strategies");
+                  revalidatePath("/trading");
+                }}>
                   <button type="submit" className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-[11px] font-bold transition-colors ${
                     s.isActive
                       ? "bg-[#ef4444]/10 text-[#ef4444] hover:bg-[#ef4444]/20"
@@ -128,7 +148,12 @@ export default async function AdminStrategiesPage() {
                     {s.isActive ? <><XCircle size={12} /> Disable</> : <><CheckCircle size={12} /> Enable</>}
                   </button>
                 </form>
-                <form action={async () => { "use server"; await deleteStrategy(s.id); }}>
+                <form action={async () => {
+                  "use server";
+                  await deleteStrategy(s.id);
+                  revalidatePath("/admin/strategies");
+                  revalidatePath("/trading");
+                }}>
                   <button type="submit" className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-[11px] font-bold bg-[#1a1a1a] text-[#666] hover:text-[#ef4444] transition-colors">
                     <Trash2 size={12} /> Delete
                   </button>

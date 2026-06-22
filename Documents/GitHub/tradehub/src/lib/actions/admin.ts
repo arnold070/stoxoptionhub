@@ -417,6 +417,8 @@ export async function createStrategy(data: {
   tier: StrategyTier;
   minAmount: number;
   maxAmount?: number;
+  roiPercent?: number;
+  durationDays?: number;
   performance?: number;
   managedBy?: string;
 }): Promise<ActionResult> {
@@ -433,7 +435,7 @@ export async function createStrategy(data: {
 
 export async function updateStrategy(
   id: string,
-  data: Partial<{ name: string; description: string; tier: StrategyTier; minAmount: number; maxAmount: number | null; performance: number; isActive: boolean; managedBy: string | null }>
+  data: Partial<{ name: string; description: string; tier: StrategyTier; minAmount: number; maxAmount: number | null; roiPercent: number; durationDays: number; performance: number; isActive: boolean; managedBy: string | null }>
 ): Promise<ActionResult> {
   const session = await requireAdmin();
   if (!session) return { success: false, error: "Insufficient permissions" };

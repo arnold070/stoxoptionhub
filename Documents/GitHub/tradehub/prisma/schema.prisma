@@ -154,17 +154,19 @@ model Membership {
 }
 
 model Strategy {
-  id          String       @id @default(cuid())
-  name        String       @unique
-  description String
-  tier        StrategyTier
-  minAmount   Float
-  maxAmount   Float?
-  performance Float        @default(0)
-  isActive    Boolean      @default(true)
-  managedBy   String?
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  id           String       @id @default(cuid())
+  name         String       @unique
+  description  String
+  tier         StrategyTier
+  minAmount    Float
+  maxAmount    Float?
+  roiPercent   Float        @default(0)
+  durationDays Int          @default(30)
+  performance  Float        @default(0)
+  isActive     Boolean      @default(true)
+  managedBy    String?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
 
   allocations Allocation[]
 
