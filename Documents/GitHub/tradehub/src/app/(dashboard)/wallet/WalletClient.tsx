@@ -36,6 +36,7 @@ export default function WalletClient({ wallet, transactions, stats, depositAddre
   const [isPending, startTransition] = useTransition();
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [copied, setCopied] = useState(false);
+  const [txFilter, setTxFilter] = useState<"ALL" | "DEPOSITS" | "WITHDRAWALS">("ALL");
 
   const currentAddress = depositAddresses[network] ?? "";
 
@@ -126,8 +127,9 @@ export default function WalletClient({ wallet, transactions, stats, depositAddre
             <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
               <h3 className="text-[14px] font-semibold text-white">Transaction History</h3>
               <div className="flex gap-3 text-[11px]">
-                {["ALL", "DEPOSITS", "WITHDRAWALS"].map((f) => (
-                  <button key={f} type="button" className={`font-medium tracking-wider ${f === "ALL" ? "text-[#f0b429]" : "text-[#555] hover:text-white"}`}>{f}</button>
+                {(["ALL", "DEPOSITS", "WITHDRAWALS"] as const).map((f) => (
+                  <button key={f} type="button" onClick={() => setTxFilter(f)}
+                    className={`font-medium tracking-wider ${txFilter === f ? "text-[#f0b429]" : "text-[#555] hover:text-white"}`}>{f}</button>
                 ))}
               </div>
             </div>
@@ -141,7 +143,11 @@ export default function WalletClient({ wallet, transactions, stats, depositAddre
                 </tr>
               </thead>
               <tbody>
-                {transactions.slice(0, 5).map((tx) => (
+                {transactions.filter((tx) =>
+                  txFilter === "ALL" ? true
+                  : txFilter === "DEPOSITS" ? tx.type === "DEPOSIT"
+                  : tx.type === "WITHDRAWAL"
+                ).slice(0, 10).map((tx) => (
                   <tr key={tx.id} className="border-b border-[#1a1a1a] last:border-0">
                     <td className="py-2.5 text-[#888]">{formatDate(tx.createdAt)}</td>
                     <td className="py-2.5">

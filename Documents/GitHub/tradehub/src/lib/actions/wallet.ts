@@ -5,8 +5,8 @@ import { getSession } from "@/lib/auth";
 import { createNotification } from "@/lib/notifications";
 import { getClientIp, checkRateLimit } from "@/lib/rate-limit";
 
-const MIN_DEPOSIT = 10;
-const MIN_WITHDRAWAL = 20;
+const MIN_DEPOSIT = 1000;
+const MIN_WITHDRAWAL = 1000;
 
 type ActionResult = { success: true } | { success: false; error: string };
 

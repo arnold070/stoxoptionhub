@@ -3,7 +3,7 @@ import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "@/lib/actions/auth";
 import { getStrategies, getUserAllocations, allocateToStrategy, withdrawFromStrategy } from "@/lib/actions/copy-trading";
 import { formatCurrency } from "@/lib/utils";
-import { Search, SlidersHorizontal, Star, ArrowUpRight } from "lucide-react";
+import { Star, ArrowUpRight } from "lucide-react";
 
 const TIER_META: Record<string, { label: string; cls: string; border: string }> = {
   BRONZE: { label: "BRONZE", cls: "text-[#cd7f32] bg-[#cd7f32]/10 border-[#cd7f32]/30", border: "border-[#cd7f32]/20" },
@@ -35,11 +35,6 @@ export default async function CopyTradingPage({
 
   const tiers = ["BRONZE", "SILVER", "GOLD", "PLATINUM"] as const;
 
-  const topPerformers = [
-    { rank: "#01", name: "Liquid_Snake", type: "Cross-Asset Arbitrage", roi: "+42.15%" },
-    { rank: "#02", name: "Vault_Tech",   type: "Indices Futures",        roi: "+38.90%" },
-    { rank: "#03", name: "Zenith_Quant", type: "Stablecoin Delta Neutral", roi: "+31.22%" },
-  ];
 
   return (
     <div className="space-y-8">
@@ -53,20 +48,6 @@ export default async function CopyTradingPage({
         <div>
           <h1 className="text-2xl font-bold text-white">Strategy Marketplace</h1>
           <p className="text-[13px] text-[#555] mt-1">Copy institutional-grade strategies with real-time execution.</p>
-        </div>
-        <div className="flex gap-3">
-          <div className="flex flex-1 items-center gap-2 bg-[#111] border border-[#1e1e1e] rounded-lg px-3 py-2">
-            <Search size={14} className="text-[#555] shrink-0" />
-            <input
-              className="bg-transparent text-[13px] text-white placeholder:text-[#555] outline-none w-full sm:w-44"
-              placeholder="Search strategies..."
-              readOnly
-            />
-          </div>
-          <button type="button" className="flex items-center gap-2 bg-[#111] border border-[#1e1e1e] rounded-lg px-3 py-2 text-[13px] text-[#888] hover:text-white transition-colors shrink-0">
-            <SlidersHorizontal size={14} />
-            <span className="hidden sm:inline">Filters</span>
-          </button>
         </div>
       </div>
 
@@ -204,44 +185,38 @@ export default async function CopyTradingPage({
         })}
       </div>
 
-      {/* Top Performers */}
-      <div className="bg-[#111] border border-[#1e1e1e] rounded-xl p-4 sm:p-6">
-        <div className="flex items-center justify-between mb-5">
-          <h2 className="text-[15px] font-semibold text-white">Top Performers (This Month)</h2>
-          <button type="button" className="text-[12px] text-[#f0b429] hover:opacity-80 flex items-center gap-1 shrink-0">
-            <span className="hidden sm:inline">View All Traders</span> <ArrowUpRight size={12} />
-          </button>
+      {/* Top Strategies by Performance */}
+      {strategies.filter((s) => s.performance > 0).length > 0 && (
+        <div className="bg-[#111] border border-[#1e1e1e] rounded-xl p-4 sm:p-6">
+          <h2 className="text-[15px] font-semibold text-white mb-5">Top Strategies by Performance</h2>
+          <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+            <table className="w-full text-[13px] min-w-[400px]">
+              <thead>
+                <tr className="border-b border-[#1e1e1e]">
+                  {["#", "Strategy", "Tier", "Performance"].map((h) => (
+                    <th key={h} className="text-left pb-3 text-[#555] font-medium uppercase text-[10px] tracking-wider">{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {[...strategies].sort((a, b) => b.performance - a.performance).slice(0, 5).map((s, i) => {
+                  const meta = TIER_META[s.tier] ?? TIER_META.BRONZE;
+                  return (
+                    <tr key={s.id} className="border-b border-[#1a1a1a] last:border-0">
+                      <td className="py-3 text-[#555] font-medium">#{String(i + 1).padStart(2, "0")}</td>
+                      <td className="py-3 font-semibold text-white">{s.name}</td>
+                      <td className="py-3">
+                        <span className={`px-2 py-0.5 rounded border text-[10px] font-semibold ${meta.cls}`}>{meta.label}</span>
+                      </td>
+                      <td className="py-3 font-semibold text-[#22c55e]">+{s.performance}%</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
-        <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
-        <table className="w-full text-[13px] min-w-[480px]">
-          <thead>
-            <tr className="border-b border-[#1e1e1e]">
-              {["Rank", "Trader", "Strategy Type", "30D ROI", "Actions"].map((h) => (
-                <th key={h} className="text-left pb-3 text-[#555] font-medium uppercase text-[10px] tracking-wider">{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {topPerformers.map(({ rank, name, type, roi }) => (
-              <tr key={rank} className="border-b border-[#1a1a1a] last:border-0">
-                <td className="py-3 text-[#555] font-medium">{rank}</td>
-                <td className="py-3">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-7 h-7 rounded-full bg-[#1a1a1a] border border-[#2a2a2a]" />
-                    <span className="font-semibold text-white">{name}</span>
-                  </div>
-                </td>
-                <td className="py-3 text-[#888]">{type}</td>
-                <td className="py-3 font-semibold text-[#22c55e]">{roi}</td>
-                <td className="py-3">
-                  <button type="button" className="text-[#f0b429] text-[12px] font-medium hover:opacity-80">Details</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        </div>
-      </div>
+      )}
     </div>
   );
 }

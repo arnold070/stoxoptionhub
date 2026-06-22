@@ -10,13 +10,17 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const user = await getCurrentUser();
   if (!user) redirect("/login");
 
-  const [wallet, rawNotifications] = await Promise.all([
+  const [wallet, rawNotifications, activeMembership] = await Promise.all([
     getWallet().catch(() => null),
     prisma.notification.findMany({
       where: { userId: user.id },
       orderBy: { createdAt: "desc" },
       take: 20,
     }).catch(() => []),
+    prisma.membership.findFirst({
+      where: { userId: user.id, status: "ACTIVE" },
+      include: { plan: { select: { name: true } } },
+    }).catch(() => null),
   ]);
 
   const balance = wallet?.balance ?? 0;
@@ -44,6 +48,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       formattedBalance={formattedBalance}
       signOutAction={signOutAction}
       notifications={notifications}
+      membershipPlan={activeMembership?.plan.name ?? null}
     >
       {children}
     </DashboardShell>

@@ -70,6 +70,7 @@ export default function DashboardShell({
   formattedBalance,
   signOutAction,
   notifications,
+  membershipPlan,
   children,
 }: {
   userName: string;
@@ -77,6 +78,7 @@ export default function DashboardShell({
   formattedBalance: string;
   signOutAction: () => Promise<void>;
   notifications: Array<{ id: string; type: string; title: string; message: string; isRead: boolean; createdAt: string }>;
+  membershipPlan: string | null;
   children: React.ReactNode;
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -130,15 +132,31 @@ export default function DashboardShell({
       <div className="px-2 py-3 border-t border-[#1a1a1a] space-y-2">
         {!isAdmin && (
           <div className="bg-[#1a1a1a] rounded-lg p-3 border border-[#2a2a2a]">
-            <div className="text-[10px] text-[#f0b429] font-semibold uppercase tracking-wider mb-1">
-              Pro Account Active
-            </div>
-            <div className="text-[10px] text-[#444] mb-2">Fee Rebate Level 4</div>
-            <Link href="/memberships">
-              <button type="button" className="w-full py-1.5 bg-transparent border border-[#f0b429] rounded text-[11px] text-[#f0b429] font-semibold hover:bg-[#f0b429]/10 transition-colors min-h-[36px]">
-                Upgrade to Pro
-              </button>
-            </Link>
+            {membershipPlan ? (
+              <>
+                <div className="text-[10px] text-[#f0b429] font-semibold uppercase tracking-wider mb-1">
+                  {membershipPlan}
+                </div>
+                <div className="text-[10px] text-[#444] mb-2">Active membership</div>
+                <Link href="/memberships">
+                  <button type="button" className="w-full py-1.5 bg-transparent border border-[#333] rounded text-[11px] text-[#666] hover:text-white hover:border-[#555] transition-colors min-h-[36px]">
+                    Manage Plan
+                  </button>
+                </Link>
+              </>
+            ) : (
+              <>
+                <div className="text-[10px] text-[#666] font-semibold uppercase tracking-wider mb-1">
+                  No Active Plan
+                </div>
+                <div className="text-[10px] text-[#444] mb-2">Unlock mentorship &amp; signals</div>
+                <Link href="/memberships">
+                  <button type="button" className="w-full py-1.5 bg-transparent border border-[#f0b429] rounded text-[11px] text-[#f0b429] font-semibold hover:bg-[#f0b429]/10 transition-colors min-h-[36px]">
+                    View Plans
+                  </button>
+                </Link>
+              </>
+            )}
           </div>
         )}
         <form action={signOutAction}>

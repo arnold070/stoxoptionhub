@@ -1,8 +1,33 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { getCurrentUser } from "@/lib/actions/auth";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { TrendingUp, ArrowUpRight, ArrowDownRight } from "lucide-react";
+
+async function fetchMarketSnapshot() {
+  try {
+    const res = await fetch(
+      "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,binancecoin,solana&vs_currencies=usd&include_24hr_change=true",
+      { next: { revalidate: 60 }, headers: { Accept: "application/json" } }
+    );
+    if (!res.ok) return null;
+    const d = await res.json();
+    return [
+      { pair: "BTC / USD",  price: d.bitcoin?.usd,       change: d.bitcoin?.usd_24h_change },
+      { pair: "ETH / USD",  price: d.ethereum?.usd,      change: d.ethereum?.usd_24h_change },
+      { pair: "BNB / USD",  price: d.binancecoin?.usd,   change: d.binancecoin?.usd_24h_change },
+      { pair: "SOL / USD",  price: d.solana?.usd,        change: d.solana?.usd_24h_change },
+    ].map(({ pair, price, change }) => ({
+      pair,
+      price: price != null ? Number(price).toLocaleString("en-US", { maximumFractionDigits: 2 }) : "—",
+      change: change != null ? `${change >= 0 ? "+" : ""}${Number(change).toFixed(2)}%` : "—",
+      up: change != null ? change >= 0 : null,
+    }));
+  } catch {
+    return null;
+  }
+}
 
 function MiniChart() {
   const points = [30, 45, 35, 55, 48, 65, 58, 72, 68, 85, 78, 92];
@@ -31,7 +56,7 @@ export default async function DashboardPage() {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
 
-  const [wallet, activeMembership, allocations, recentTransactions] = await Promise.all([
+  const [wallet, activeMembership, allocations, recentTransactions, marketData] = await Promise.all([
     prisma.wallet.findUnique({ where: { userId: user.id } }),
     prisma.membership.findFirst({
       where: { userId: user.id, status: "ACTIVE" },
@@ -47,6 +72,7 @@ export default async function DashboardPage() {
       orderBy: { createdAt: "desc" },
       take: 5,
     }),
+    fetchMarketSnapshot(),
   ]);
 
   const totalAllocated = allocations.reduce((s, a) => s + a.amount, 0);
@@ -60,12 +86,6 @@ export default async function DashboardPage() {
     { label: "Main Strategy", value: allocations[0]?.strategy.name ?? "—", sub: allocations[0]?.strategy.tier.toLowerCase() ?? "none", subCls: "text-[#888]", valueCls: "text-white" },
   ];
 
-  const marketData = [
-    { pair: "S&P 500", price: "5,432.1", change: "+0.45%", up: true },
-    { pair: "BTC / USD", price: "68,490", change: "-1.2%", up: false },
-    { pair: "GOLD (XAU)", price: "2,342", change: "+0.1%", up: true },
-    { pair: "US 10Y", price: "4.24%", change: "FLAT", up: null },
-  ];
 
   return (
     <div className="space-y-6">
@@ -85,16 +105,7 @@ export default async function DashboardPage() {
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-6">
           <div>
             <h2 className="text-lg font-bold text-white">Portfolio Performance</h2>
-            <p className="text-[12px] text-[#555] mt-0.5">Growth analysis for the current fiscal period</p>
-          </div>
-          <div className="flex gap-2">
-            {["Daily", "Weekly", "Monthly"].map((p, i) => (
-              <button key={p} type="button" className={`px-3 py-1 rounded-md text-[12px] font-medium transition-colors ${
-                i === 0 ? "bg-[#f0b429]/20 text-[#f0b429] border border-[#f0b429]/30" : "text-[#555] hover:text-white"
-              }`}>
-                {p}
-              </button>
-            ))}
+            <p className="text-[12px] text-[#555] mt-0.5">Allocation activity across active strategies</p>
           </div>
         </div>
         <div className="w-full">
@@ -107,9 +118,9 @@ export default async function DashboardPage() {
         <div className="bg-[#111] border border-[#1e1e1e] rounded-xl p-4 sm:p-6">
           <div className="flex items-center justify-between mb-5">
             <h2 className="text-[15px] font-semibold text-white">Strategy Allocations</h2>
-            <button type="button" className="text-[12px] text-[#f0b429] flex items-center gap-1 hover:opacity-80 shrink-0">
-              <span className="hidden sm:inline">View Full Report</span> <ArrowUpRight size={12} />
-            </button>
+            <Link href="/trading" className="text-[12px] text-[#f0b429] flex items-center gap-1 hover:opacity-80 shrink-0">
+              <span className="hidden sm:inline">View Strategies</span> <ArrowUpRight size={12} />
+            </Link>
           </div>
           {allocations.length === 0 ? (
             <p className="text-[#555] text-[13px]">No active allocations yet.</p>
@@ -181,19 +192,26 @@ export default async function DashboardPage() {
 
           {/* Market Outlook */}
           <div className="bg-[#111] border border-[#1e1e1e] rounded-xl p-5">
-            <h2 className="text-[15px] font-semibold text-white mb-4">Market Outlook</h2>
-            <div className="grid grid-cols-2 gap-3">
-              {marketData.map(({ pair, price, change, up }) => (
-                <div key={pair} className="bg-[#1a1a1a] rounded-lg p-3">
-                  <div className="text-[10px] text-[#555] uppercase tracking-wider mb-1">{pair}</div>
-                  <div className="text-[15px] font-bold text-white">{price}</div>
-                  <div className={`text-[11px] font-medium mt-0.5 ${up === true ? "text-[#22c55e]" : up === false ? "text-[#ef4444]" : "text-[#555]"}`}>
-                    <TrendingUp size={10} className="inline mr-1" />
-                    {change}
-                  </div>
-                </div>
-              ))}
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-[15px] font-semibold text-white">Market Prices</h2>
+              <span className="text-[10px] text-[#444]">Live · updates every 60s</span>
             </div>
+            {marketData ? (
+              <div className="grid grid-cols-2 gap-3">
+                {marketData.map(({ pair, price, change, up }) => (
+                  <div key={pair} className="bg-[#1a1a1a] rounded-lg p-3">
+                    <div className="text-[10px] text-[#555] uppercase tracking-wider mb-1">{pair}</div>
+                    <div className="text-[15px] font-bold text-white">${price}</div>
+                    <div className={`text-[11px] font-medium mt-0.5 ${up === true ? "text-[#22c55e]" : up === false ? "text-[#ef4444]" : "text-[#555]"}`}>
+                      <TrendingUp size={10} className="inline mr-1" />
+                      {change}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-[12px] text-[#444]">Market data unavailable.</p>
+            )}
           </div>
         </div>
       </div>
