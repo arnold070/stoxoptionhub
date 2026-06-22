@@ -8,6 +8,7 @@ const DEPOSIT_KEYS = [
   "deposit_usdt_trc20",
   "deposit_usdt_erc20",
   "deposit_usdt_bep20",
+  "deposit_eth",
   "deposit_btc",
 ];
 
@@ -26,6 +27,7 @@ export default async function WalletPage() {
     TRC20: cfg.deposit_usdt_trc20 ?? "",
     ERC20: cfg.deposit_usdt_erc20 ?? "",
     BEP20: cfg.deposit_usdt_bep20 ?? "",
+    ETH:   cfg.deposit_eth ?? "",
     BTC:   cfg.deposit_btc ?? "",
   };
 

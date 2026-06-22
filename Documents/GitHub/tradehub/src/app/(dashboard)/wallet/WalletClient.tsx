@@ -5,12 +5,13 @@ import { requestDeposit, requestWithdrawal } from "@/lib/actions/wallet";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { Copy, Shield, CheckCircle } from "lucide-react";
 
-type NetworkKey = "TRC20" | "ERC20" | "BEP20" | "BTC";
+type NetworkKey = "TRC20" | "ERC20" | "BEP20" | "BTC" | "ETH";
 
 const NETWORKS: { value: NetworkKey; label: string }[] = [
   { value: "TRC20", label: "USDT (TRC-20)" },
   { value: "ERC20", label: "USDT (ERC-20)" },
   { value: "BEP20", label: "USDT (BEP-20)" },
+  { value: "ETH",   label: "Ethereum (ETH)" },
   { value: "BTC",   label: "Bitcoin (BTC)" },
 ];
 
@@ -215,7 +216,7 @@ export default function WalletClient({ wallet, transactions, stats, depositAddre
                 <>
                   <div>
                     <div className="text-[10px] text-[#555] uppercase tracking-wider mb-1.5">
-                      Send {network === "BTC" ? "BTC" : "USDT"} to this address
+                      Send {network === "BTC" ? "BTC" : network === "ETH" ? "ETH" : "USDT"} to this address
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="flex-1 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-3 py-2.5 text-[11px] text-[#ccc] font-mono break-all">
@@ -238,7 +239,7 @@ export default function WalletClient({ wallet, transactions, stats, depositAddre
                   <div className="flex items-start gap-2 p-3 bg-[#1a1a1a] rounded-lg">
                     <span className="text-[#f0b429] mt-0.5 text-[12px]">ⓘ</span>
                     <p className="text-[11px] text-[#555]">
-                      Send only <strong className="text-white">{network === "BTC" ? "BTC" : `USDT on the ${network} network`}</strong> to
+                      Send only <strong className="text-white">{network === "BTC" ? "BTC" : network === "ETH" ? "ETH (Ethereum mainnet)" : `USDT on the ${network} network`}</strong> to
                       this address. Sending the wrong asset or network will result in permanent loss of funds.
                     </p>
                   </div>

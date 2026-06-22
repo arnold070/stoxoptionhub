@@ -9,10 +9,11 @@ import { formatCurrency, formatDate } from "@/lib/utils";
 import { CreditCard, PlusCircle, MinusCircle, Lock, Unlock, Wallet } from "lucide-react";
 
 const DEPOSIT_CFG = [
-  { key: "deposit_usdt_trc20", label: "USDT — TRC-20", placeholder: "T…", hint: "Tron network address starting with T" },
-  { key: "deposit_usdt_erc20", label: "USDT — ERC-20", placeholder: "0x…", hint: "Ethereum network address" },
-  { key: "deposit_usdt_bep20", label: "USDT — BEP-20", placeholder: "0x…", hint: "BNB Smart Chain address" },
-  { key: "deposit_btc",        label: "Bitcoin — BTC",  placeholder: "bc1… or 1… or 3…", hint: "Native SegWit, Legacy, or P2SH" },
+  { key: "deposit_usdt_trc20", label: "USDT — TRC-20",    placeholder: "T…",               hint: "Tron network address starting with T" },
+  { key: "deposit_usdt_erc20", label: "USDT — ERC-20",    placeholder: "0x…",              hint: "Ethereum network address" },
+  { key: "deposit_usdt_bep20", label: "USDT — BEP-20",    placeholder: "0x…",              hint: "BNB Smart Chain address" },
+  { key: "deposit_eth",        label: "Ethereum — ETH",   placeholder: "0x…",              hint: "Ethereum mainnet address" },
+  { key: "deposit_btc",        label: "Bitcoin — BTC",    placeholder: "bc1… or 1… or 3…", hint: "Native SegWit, Legacy, or P2SH" },
 ];
 
 export default async function AdminWalletPage({
@@ -30,6 +31,7 @@ export default async function AdminWalletPage({
     deposit_usdt_trc20: cfg.deposit_usdt_trc20 ?? "",
     deposit_usdt_erc20: cfg.deposit_usdt_erc20 ?? "",
     deposit_usdt_bep20: cfg.deposit_usdt_bep20 ?? "",
+    deposit_eth:        cfg.deposit_eth ?? "",
     deposit_btc:        cfg.deposit_btc ?? "",
   };
 
