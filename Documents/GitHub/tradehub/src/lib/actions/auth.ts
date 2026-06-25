@@ -17,9 +17,9 @@ const RegisterSchema = z.object({
     .regex(/[A-Z]/, { error: "Password must contain an uppercase letter" })
     .regex(/[0-9]/, { error: "Password must contain a number" }),
   name: z.string().min(2, { error: "Name must be at least 2 characters" }),
-  usdtAddress: z.string().optional(),
-  btcAddress: z.string().optional(),
-  bnbAddress: z.string().optional(),
+  usdtAddress: z.string().nullish(),
+  btcAddress: z.string().nullish(),
+  bnbAddress: z.string().nullish(),
 });
 
 const LoginSchema = z.object({

@@ -22,9 +22,9 @@ export default function RegisterPage() {
           name: form.get("name") as string,
           email: form.get("email") as string,
           password: form.get("password") as string,
-          usdtAddress: form.get("usdtAddress") as string,
-          btcAddress: form.get("btcAddress") as string,
-          bnbAddress: form.get("bnbAddress") as string,
+          usdtAddress: (form.get("usdtAddress") as string) || undefined,
+          btcAddress: (form.get("btcAddress") as string) || undefined,
+          bnbAddress: (form.get("bnbAddress") as string) || undefined,
         });
         if (result.success) { router.push("/dashboard"); router.refresh(); }
         else setError(result.error);
