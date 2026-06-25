@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { registerUser } from "@/lib/actions/auth";
+import { formField } from "@/lib/utils";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { Logo } from "@/components/Logo";
 
@@ -19,12 +20,12 @@ export default function RegisterPage() {
     startTransition(async () => {
       try {
         const result = await registerUser({
-          name: form.get("name") as string,
-          email: form.get("email") as string,
-          password: form.get("password") as string,
-          usdtAddress: (form.get("usdtAddress") as string) || undefined,
-          btcAddress: (form.get("btcAddress") as string) || undefined,
-          bnbAddress: (form.get("bnbAddress") as string) || undefined,
+          name: formField(form, "name")!,
+          email: formField(form, "email")!,
+          password: formField(form, "password")!,
+          usdtAddress: formField(form, "usdtAddress"),
+          btcAddress: formField(form, "btcAddress"),
+          bnbAddress: formField(form, "bnbAddress"),
         });
         if (result.success) { router.push("/dashboard"); router.refresh(); }
         else setError(result.error);

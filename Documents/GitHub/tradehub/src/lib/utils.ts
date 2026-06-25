@@ -30,6 +30,15 @@ export function slugify(text: string): string {
   return text.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]/g, "");
 }
 
+/**
+ * Reads a FormData field and converts null (missing field) to undefined,
+ * so Zod optional fields don't reject absent form inputs.
+ */
+export function formField(data: FormData, key: string): string | undefined {
+  const val = data.get(key);
+  return val === null || val === "" ? undefined : (val as string);
+}
+
 export function paginate<T>(items: T[], page: number, limit: number) {
   const offset = (page - 1) * limit;
   return {

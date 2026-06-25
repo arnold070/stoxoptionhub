@@ -1,6 +1,9 @@
 import "@testing-library/jest-dom";
 import { vi } from "vitest";
 
+// Required for createSession / verifyToken
+process.env.JWT_SECRET = "test-secret-for-unit-tests-only";
+
 // Mock Next.js navigation
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn() }),

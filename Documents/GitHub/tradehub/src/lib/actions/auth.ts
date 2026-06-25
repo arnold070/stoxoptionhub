@@ -48,6 +48,7 @@ export async function registerUser(data: {
   const parsed = RegisterSchema.safeParse(data);
   if (!parsed.success) {
     const first = parsed.error.issues[0];
+    console.warn("[registerUser] validation", parsed.error.issues.map(i => `${i.path.join(".")}: ${i.message}`));
     return { success: false, error: first?.message ?? "Validation failed" };
   }
 

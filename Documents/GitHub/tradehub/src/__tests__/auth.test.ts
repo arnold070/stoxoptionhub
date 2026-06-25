@@ -136,6 +136,29 @@ describe("registerUser", () => {
     if (result.success) return;
     expect(result.error).toMatch(/email/i);
   });
+
+  it("succeeds when optional wallet fields are null (FormData.get() default)", async () => {
+    vi.spyOn(bcrypt, "hash").mockResolvedValue("hashed" as never);
+    vi.mocked(prisma.user.findUnique).mockResolvedValue(null);
+    vi.mocked(prisma.user.create).mockResolvedValue({
+      id: "u2", email: "w@example.com", name: "Wallet Test", role: "MEMBER",
+      emailVerified: false, isSuspended: false, avatarUrl: null, phone: null,
+      createdAt: new Date(), updatedAt: new Date(), password: "hashed",
+    } as any);
+    vi.mocked(prisma.wallet.create).mockResolvedValue({ id: "w2" } as any);
+
+    // Simulate FormData.get() returning null for hidden wallet inputs
+    const result = await registerUser({
+      email: "w@example.com",
+      password: "Password123!",
+      name: "Wallet Test",
+      usdtAddress: null as unknown as undefined,
+      btcAddress: null as unknown as undefined,
+      bnbAddress: null as unknown as undefined,
+    });
+
+    expect(result.success).toBe(true);
+  });
 });
 
 describe("loginUser", () => {
