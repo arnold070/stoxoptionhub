@@ -1,4 +1,3 @@
-export const dynamic = "force-dynamic";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/actions/auth";
 import {
@@ -14,6 +13,7 @@ import { Users, UserCheck, UserX, UserPlus, Search } from "lucide-react";
 import Link from "next/link";
 import type { Role } from "@/generated/prisma/enums";
 
+export const dynamic = "force-dynamic";
 
 const STATUS_TABS = [
   { label: "All",       value: "all" },

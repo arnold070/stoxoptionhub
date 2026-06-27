@@ -1,10 +1,10 @@
-export const dynamic = "force-dynamic";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/actions/auth";
 import { getCmsPages, upsertCmsPage, deleteCmsPage } from "@/lib/actions/admin";
 import { LayoutTemplate, Plus, Trash2, Eye, EyeOff } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 
+export const dynamic = "force-dynamic";
 
 const PREDEFINED_SECTIONS = [
   {

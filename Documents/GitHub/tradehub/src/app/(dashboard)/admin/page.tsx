@@ -1,4 +1,3 @@
-export const dynamic = "force-dynamic";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "@/lib/actions/auth";
@@ -26,6 +25,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
 
 function timeSince(date: Date | string) {
   const seconds = Math.floor((Date.now() - new Date(date).getTime()) / 1000);

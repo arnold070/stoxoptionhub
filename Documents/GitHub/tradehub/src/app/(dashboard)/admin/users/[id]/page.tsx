@@ -1,4 +1,3 @@
-export const dynamic = "force-dynamic";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/actions/auth";
 import {
@@ -35,6 +34,7 @@ import {
 import Link from "next/link";
 import type { Role } from "@/generated/prisma/enums";
 
+export const dynamic = "force-dynamic";
 
 function StatusBadge({ u }: { u: { isSuspended: boolean; isBanned?: boolean; deletedAt?: Date | null } }) {
   const isDeleted = !!u.deletedAt;

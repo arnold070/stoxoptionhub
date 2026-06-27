@@ -1,9 +1,9 @@
-export const dynamic = "force-dynamic";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/actions/auth";
 import { getSiteConfig, updateSiteConfig } from "@/lib/actions/admin";
 import { Headphones, ExternalLink, Info } from "lucide-react";
 
+export const dynamic = "force-dynamic";
 
 const PROVIDERS = [
   {
